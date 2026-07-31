@@ -1,8 +1,18 @@
-# 🎈 Blank app template
+# 📊 Interactive Data Explorer
 
-A simple Streamlit app template for you to modify!
+A self-contained Streamlit app for exploring tabular data. It ships with a
+built-in sample sales dataset so it works out of the box, and also accepts your
+own CSV uploads.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+## Features
+
+- **Upload any CSV** or explore the generated sample data
+- **Automatic filters** — dynamic multiselects for categorical columns and
+  range sliders for date columns
+- **Key metrics** — total, average, max, and row count for any numeric column
+- **Trend chart** — weekly time-series of any numeric column
+- **Breakdown chart** — grouped totals by any categorical column
+- **Data table** with summary statistics and a filtered-CSV download
 
 ### How to run it on your own machine
 
