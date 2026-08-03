@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rendement des adductions — DR</title>
+<style>
+  :root { --teal:#0a8f6e; --teal-d:#076b52; --bg:#f4f8f7; --line:#d5e8e2; --ink:#183a33; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Roboto, Arial, sans-serif; margin:0; background:var(--bg); color:var(--ink); }
+  header { background:linear-gradient(120deg,var(--teal),var(--teal-d)); color:#fff; padding:16px 22px; }
+  header h1 { margin:0; font-size:20px; }
+  header p { margin:4px 0 0; opacity:.9; font-size:13px; }
+  .bar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; padding:12px 22px; background:#fff; border-bottom:1px solid var(--line); }
+  .bar label { font-size:13px; font-weight:600; }
+  select, input[type=text] { padding:6px 8px; border:1px solid var(--line); border-radius:6px; font-size:13px; }
+  button { padding:7px 12px; border:0; border-radius:6px; background:var(--teal); color:#fff; font-size:13px; cursor:pointer; }
+  button.sec { background:#eef4f2; color:var(--teal-d); border:1px solid var(--line); }
+  button:hover { filter:brightness(1.05); }
+  .tabs { display:flex; gap:4px; padding:10px 22px 0; flex-wrap:wrap; }
+  .tabs .t { padding:9px 16px; background:#e7f0ed; border-radius:8px 8px 0 0; cursor:pointer; font-size:14px; font-weight:600; color:#4b6b63; }
+  .tabs .t.active { background:#fff; color:var(--teal-d); box-shadow:0 -2px 0 var(--teal) inset; }
+  main { padding:18px 22px 60px; }
+  .panel { display:none; background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .panel.active { display:block; }
+  h2 { font-size:16px; color:var(--teal-d); margin:4px 0 12px; }
+  .tbl-wrap { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  th,td { border:1px solid var(--line); padding:5px 7px; text-align:right; white-space:nowrap; }
+  th { background:#e6f7f0; position:sticky; top:0; }
+  td:first-child, th:first-child { text-align:left; }
+  td input, td select { width:100%; border:1px solid transparent; background:transparent; padding:3px 4px; text-align:right; font-size:12.5px; border-radius:4px; }
+  td input:focus, td select:focus { border-color:var(--teal); background:#fff; outline:none; }
+  td.name input { text-align:left; }
+  .kpis { display:flex; flex-wrap:wrap; gap:14px; margin-bottom:14px; }
+  .kpi { flex:1; min-width:150px; background:#f0faf6; border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .kpi .v { font-size:26px; font-weight:800; color:var(--teal-d); }
+  .kpi .l { font-size:12px; color:#5a746c; }
+  .muted { color:#5a746c; font-size:12.5px; }
+  .warn { background:#fff6e6; border:1px solid #f0d9a8; color:#8a5a00; padding:8px 12px; border-radius:8px; font-size:12.5px; }
+  .ok { background:#eafaf2; border:1px solid #bfe6d3; color:#0a6b4a; padding:8px 12px; border-radius:8px; font-size:12.5px; }
+  tr.bold td { font-weight:700; background:#f3faf7; }
+  .row-actions { text-align:center; }
+  .del { background:#fbe9e9; color:#b23; border:1px solid #f0c9c9; padding:2px 8px; border-radius:6px; cursor:pointer; }
+  @media print {
+    header, .bar, .tabs, .no-print { display:none !important; }
+    .panel { display:none !important; }
+    #report { display:block !important; border:0; }
+    body { background:#fff; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>💧 Rendement des adductions d'eau potable — Direction Régionale</h1>
+  <p>ONEE Branche Eau · Rendement = (Ventes + Cession adduction + Pertes techniques) / (Production + Achat adduction + Achat externe) × 100</p>
+</header>
+
+<div class="bar no-print">
+  <label>Profil :
+    <select id="profil" onchange="onProfil()">
+      <option value="0">Responsable DR</option>
+      <option value="1">Agent SP1</option>
+      <option value="2">Agent SP2</option>
+      <option value="3">Agent SP3</option>
+      <option value="4">Agent SP4</option>
+    </select>
+  </label>
+  <label>Période : <input type="text" id="periode" placeholder="ex. Juin 2026" oninput="save()"></label>
+  <button class="sec" onclick="save()">💾 Enregistrer</button>
+  <button class="sec" onclick="reset0()">↺ Réinitialiser</button>
+  <button class="sec" onclick="exportCSV('centres')">⬇️ CSV centres</button>
+  <button class="sec" onclick="exportCSV('synthese')">⬇️ CSV synthèse</button>
+  <button onclick="printReport()">🖨️ Rapport (PDF)</button>
+</div>
+
+<div class="tabs no-print" id="tabs">
+  <div class="t active" data-tab="centres" onclick="showTab('centres')">🏭 Centres</div>
+  <div class="t" data-tab="flux" onclick="showTab('flux')">🔁 Flux internes</div>
+  <div class="t" data-tab="res" onclick="showTab('res')">📊 Résultats</div>
+</div>
+
+<main>
+  <section class="panel active" id="p-centres">
+    <h2 id="centres-title">Centres — saisie des volumes (m³)</h2>
+    <p class="muted">Vente SRM et Vente AMENDIS : séparées à la saisie (quote-part par client) ; le rendement additionne les deux.</p>
+    <div class="tbl-wrap"><table id="tc"></table></div>
+    <p class="no-print" style="margin-top:10px"><button class="sec" onclick="addCentre()">+ Ajouter un centre</button></p>
+  </section>
+
+  <section class="panel" id="p-flux">
+    <h2 id="flux-title">Flux internes à la DR (source → destination)</h2>
+    <p class="muted">Volume de chaque cession interne. Élimination automatique : intra-secteur, intra-catégorie, intra-DR.</p>
+    <div class="tbl-wrap"><table id="tf"></table></div>
+    <p class="no-print" style="margin-top:10px"><button class="sec" onclick="addFlux()">+ Ajouter un flux</button></p>
+    <h2 style="margin-top:18px">Réconciliation — cumuls (onglet Centres) vs somme des flux</h2>
+    <div id="recon"></div>
+  </section>
+
+  <section class="panel" id="p-res">
+    <div id="kpis" class="kpis"></div>
+    <h2>Synthèse par périmètre</h2>
+    <div class="tbl-wrap"><table id="ts"></table></div>
+    <h2 style="margin-top:18px">Détail par centre</h2>
+    <div class="tbl-wrap"><table id="td"></table></div>
+  </section>
+
+  <section class="panel" id="report"></section>
+</main>
+
+<script>
+// ---------- Données par défaut ----------
+const SECTEURS = [1,2,3,4];
+const DEF_CENTRES = [
+ ["TRANSPORT CHARF EL AKAB",1,2,0,42606302,0,0,41426012,0,1800],
+ ["PRODUCTION CHARF EL AKAB (CEA)",1,2,1680216,44549509,0,44588805,1490727,0,1800],
+ ["ST HACHEF",1,1,37343429,0,0,37335960,0,0,0],
+ ["TRANSPORT EAUX TRAITEES HACHEF",1,1,0,3045380,0,0,2924672,0,0],
+ ["ST M'HARHAR",1,1,11842871,0,0,11520269,0,0,0],
+ ["TRANSPORT M'HARHAR-KSAR SGHIR",1,1,36315,4104115,0,121720,2709565,0,175663],
+ ["ST TANGER MED & PRODUCTION TAGHRAMT",1,1,1395479,121720,0,698591,818264,0,0],
+ ["CENTRE PRODUCTION RAOUZ (ST RAOUZ)",2,1,3631918,153290,0,3769456,0,0,0],
+ ["CENTRE TRANSPORT RAOUZ",2,1,0,3796153,0,1341019,1576353,0,3769],
+ ["CENTRE DE PRODUCTION OUED MARTIL (ST O.MARTIL)",2,1,7491736,0,0,7491736,526,0,0],
+ ["CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla",2,2,190375,7500991,0,7322567,186034,0,6697],
+ ["ST SMIR",2,1,4440023,0,0,4440023,0,0,0],
+ ["ST TORRETA",2,1,3059875,0,0,3052620,7255,0,0],
+ ["CENTRE TRANSPORT SMIR TORETA",2,2,0,16144959,0,0,15999943,0,1800],
+ ["CENTRE DE PRODUCTION MOULAY BOUCHETA (ST)",2,1,402328,0,0,397808,0,0,0],
+ ["CPT Mly Bouchta-Chefchaouen-Tetaoun",2,1,1725816,397808,0,320543,1791649,0,0],
+ ["CPT Bab Taza - Derdara",2,1,161698,320543,0,0,457432,0,0],
+ ["CPT Oued Laou - Stehat",2,1,284199,0,0,0,273768,0,0],
+ ["CTP Bouhmed",2,1,325507,0,0,0,313742,0,0],
+ ["CPT Jebha-Bab Berred",2,1,424538,0,0,0,419875,0,522],
+ ["STATIONS DE TRAITEMENT SPECIFIQUES (ISSAGUEN-BNI AMMART-KETAMA)",2,1,129891,0,0,0,127562,0,0],
+ ["PRODUCTION ST LOUKKOS",3,1,7669298,0,0,7664444,0,0,4854],
+ ["PRODUCTION OUEZZANE OUEST",3,1,1060243,2420824,0,1126031,2144559,0,69778],
+ ["PRODUCTION OUEZZANE EST",3,1,241367,1943564,0,0,1924116,0,48408],
+ ["TRANSPORT KSAR KEBIR",3,1,0,4942267,0,3082790,1646380,0,2324],
+ ["PRODUCTION KSAR LEKBIR",3,1,457796,458835,0,0,861289,0,11751],
+ ["TRANSPORT LARACHE",3,1,0,2063443,0,0,1945815,0,36416],
+ ["PRODUCTION LARACHE",3,1,2621183,59828,0,0,2627077,0,0],
+ ["ST AL HOCEIMA",4,1,1696018,0,0,1590082,102711,0,0],
+ ["CHAMPS CAPTANTS AL HOCEIMA",4,1,3414776,0,0,3163361,219127,0,70],
+ ["TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA",4,2,0,3498941,0,941482,2436333,0,2493],
+ ["STATION DESSALEMENT AL HOCEIMA",4,1,3465151,0,0,3465151,0,0,0],
+ ["TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE",4,2,5729,5640466,0,784710,4501714,0,18480],
+ ["ST TARGUIST",4,1,453963,388468,0,0,815335,0,273],
+];
+const FIELDS = ["production","achat","achatExt","cession","srm","amendis","pertes"];
+const DEF_FLUX = [
+ ["ST HACHEF","PRODUCTION CHARF EL AKAB (CEA)"],
+ ["ST HACHEF","TRANSPORT EAUX TRAITEES HACHEF"],
+ ["PRODUCTION CHARF EL AKAB (CEA)","TRANSPORT CHARF EL AKAB"],
+ ["ST M'HARHAR","PRODUCTION CHARF EL AKAB (CEA)"],
+ ["ST M'HARHAR","TRANSPORT M'HARHAR-KSAR SGHIR"],
+ ["ST TANGER MED & PRODUCTION TAGHRAMT","TRANSPORT M'HARHAR-KSAR SGHIR"],
+ ["ST TANGER MED & PRODUCTION TAGHRAMT","CENTRE PRODUCTION RAOUZ (ST RAOUZ)"],
+ ["CENTRE PRODUCTION RAOUZ (ST RAOUZ)","CENTRE TRANSPORT RAOUZ"],
+ ["CENTRE DE PRODUCTION OUED MARTIL (ST O.MARTIL)","CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla"],
+ ["ST SMIR","CENTRE TRANSPORT SMIR TORETA"],
+ ["ST TORRETA","CENTRE TRANSPORT SMIR TORETA"],
+ ["CENTRE TRANSPORT RAOUZ","CENTRE TRANSPORT SMIR TORETA"],
+ ["CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla","CENTRE TRANSPORT SMIR TORETA"],
+ ["CENTRE DE PRODUCTION MOULAY BOUCHETA (ST)","CPT Mly Bouchta-Chefchaouen-Tetaoun"],
+ ["CPT Mly Bouchta-Chefchaouen-Tetaoun","CPT Bab Taza - Derdara"],
+ ["PRODUCTION ST LOUKKOS","PRODUCTION OUEZZANE OUEST"],
+ ["PRODUCTION ST LOUKKOS","TRANSPORT KSAR KEBIR"],
+ ["TRANSPORT KSAR KEBIR","PRODUCTION KSAR LEKBIR"],
+ ["TRANSPORT KSAR KEBIR","TRANSPORT LARACHE"],
+ ["ST AL HOCEIMA","TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA"],
+ ["CHAMPS CAPTANTS AL HOCEIMA","TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA"],
+ ["TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA","TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE"],
+ ["STATION DESSALEMENT AL HOCEIMA","TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE"],
+ ["CHAMPS CAPTANTS AL HOCEIMA","TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE"],
+ ["TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE","ST TARGUIST"],
+];
+
+// ---------- État ----------
+let centres = [], flux = [], profil = 0, periode = "";
+
+function defCentres(){ return DEF_CENTRES.map(r=>({
+  centre:r[0], secteur:r[1], categorie:r[2], production:r[3], achat:r[4],
+  achatExt:r[5], cession:r[6], srm:r[7], amendis:r[8], pertes:r[9] })); }
+function defFlux(){ return DEF_FLUX.map(r=>({source:r[0], destination:r[1], volume:0})); }
+
+function load(){
+  try {
+    const d = JSON.parse(localStorage.getItem("rendementDR")||"null");
+    if(d){ centres=d.centres; flux=d.flux; periode=d.periode||""; return; }
+  } catch(e){}
+  centres = defCentres(); flux = defFlux();
+}
+function save(){
+  periode = document.getElementById("periode").value;
+  localStorage.setItem("rendementDR", JSON.stringify({centres,flux,periode}));
+  render();
+}
+function reset0(){ if(confirm("Réinitialiser toutes les données ?")){ centres=defCentres(); flux=defFlux(); periode=""; document.getElementById("periode").value=""; save(); } }
+
+// ---------- Calcul ----------
+const N = x => (isNaN(+x)?0:+x);
+function fmt(x){ return Math.round(N(x)).toLocaleString("fr-FR"); }
+function pct(x){ return N(x).toFixed(2).replace(".",",")+" %"; }
+
+function perCentre(c){
+  const ventes = N(c.srm)+N(c.amendis);
+  const entree = N(c.production)+N(c.achat)+N(c.achatExt);
+  const sortie = ventes + N(c.cession) + N(c.pertes);
+  return {ventes, entree, sortie, pertesNT: entree-sortie, rdt: entree? sortie/entree*100 : 0};
+}
+function elimInterne(names){
+  const s = new Set(names);
+  let t=0; flux.forEach(f=>{ if(s.has(f.source)&&s.has(f.destination)) t+=N(f.volume); });
+  return t;
+}
+function agg(sub){
+  const names = sub.map(c=>c.centre);
+  const elim = elimInterne(names);
+  const S = k => sub.reduce((a,c)=>a+N(c[k]),0);
+  const prod=S("production"), ach=S("achat"), ext=S("achatExt"), cess=S("cession"),
+        vte=sub.reduce((a,c)=>a+N(c.srm)+N(c.amendis),0), pt=S("pertes");
+  const entree = prod+(ach-elim)+ext, sortie = vte+(cess-elim)+pt;
+  return {nb:sub.length, entree, ventes:vte, cessionNet:cess-elim, achatNet:ach-elim,
+          pertes:pt, sortie, pertesNT: entree-sortie, rdt: entree? sortie/entree*100:0};
+}
+function synthese(){
+  const rows=[];
+  SECTEURS.forEach(s=>{ const sub=centres.filter(c=>+c.secteur===s); if(sub.length) rows.push({per:"SP"+s, ...agg(sub)}); });
+  [1,2].forEach(cat=>{ const sub=centres.filter(c=>+c.categorie===cat); if(sub.length) rows.push({per:"Catégorie "+cat+(cat===2?" (grandes)":" (petites/moyennes)"), ...agg(sub)}); });
+  rows.push({per:"DR GLOBALE", ...agg(centres)});
+  return rows;
+}
+function reconciliation(){
+  const cf={}, af={};
+  flux.forEach(f=>{ cf[f.source]=(cf[f.source]||0)+N(f.volume); af[f.destination]=(af[f.destination]||0)+N(f.volume); });
+  return centres.map(c=>({centre:c.centre, secteur:c.secteur,
+    cc:N(c.cession), cfx:cf[c.centre]||0, ec:N(c.cession)-(cf[c.centre]||0),
+    ac:N(c.achat), afx:af[c.centre]||0, ea:N(c.achat)-(af[c.centre]||0)}));
+}
+
+// ---------- Rendu ----------
+function onProfil(){ profil = +document.getElementById("profil").value; render(); }
+function showTab(t){
+  document.querySelectorAll(".tabs .t").forEach(e=>e.classList.toggle("active", e.dataset.tab===t));
+  document.getElementById("p-centres").classList.toggle("active", t==="centres");
+  document.getElementById("p-flux").classList.toggle("active", t==="flux");
+  document.getElementById("p-res").classList.toggle("active", t==="res");
+}
+function visibleCentres(){ return profil===0? centres : centres.filter(c=>+c.secteur===profil); }
+
+function render(){
+  // titres selon profil
+  const who = profil===0? "Responsable DR — tous les centres" : "Agent SP"+profil+" — vos centres";
+  document.getElementById("centres-title").textContent = "Centres ("+who+")";
+  renderCentres(); renderFlux(); renderRecon(); renderRes();
+}
+
+function inputCell(idx, field, val){
+  return `<td><input type="number" min="0" value="${N(val)}" onchange="upC(${idx},'${field}',this.value)"></td>`;
+}
+function renderCentres(){
+  const rows = centres.map((c,i)=>({c,i})).filter(o=> profil===0 || +o.c.secteur===profil);
+  let h = `<thead><tr><th>Centre</th><th>SP</th><th>Cat.</th><th>Production</th><th>Achat add.</th>
+    <th>Achat externe</th><th>Cession add.</th><th>Vente SRM</th><th>Vente AMENDIS</th><th>Pertes tech.</th>
+    <th class="no-print"></th></tr></thead><tbody>`;
+  rows.forEach(({c,i})=>{
+    h += `<tr>
+      <td class="name"><input type="text" value="${esc(c.centre)}" onchange="upC(${i},'centre',this.value)"></td>
+      <td><select onchange="upC(${i},'secteur',this.value)">${[1,2,3,4].map(s=>`<option value="${s}" ${+c.secteur===s?"selected":""}>SP${s}</option>`).join("")}</select></td>
+      <td><select onchange="upC(${i},'categorie',this.value)">${[1,2].map(s=>`<option value="${s}" ${+c.categorie===s?"selected":""}>${s}</option>`).join("")}</select></td>
+      ${inputCell(i,"production",c.production)}${inputCell(i,"achat",c.achat)}${inputCell(i,"achatExt",c.achatExt)}
+      ${inputCell(i,"cession",c.cession)}${inputCell(i,"srm",c.srm)}${inputCell(i,"amendis",c.amendis)}${inputCell(i,"pertes",c.pertes)}
+      <td class="row-actions no-print"><span class="del" onclick="delC(${i})">✕</span></td></tr>`;
+  });
+  document.getElementById("tc").innerHTML = h+"</tbody>";
+}
+function renderFlux(){
+  const secOf = {}; centres.forEach(c=>secOf[c.centre]=+c.secteur);
+  const rows = flux.map((f,i)=>({f,i})).filter(o=> profil===0 || secOf[o.f.source]===profil);
+  let h = `<thead><tr><th>Source</th><th>Destination</th><th>Volume (m³)</th><th class="no-print"></th></tr></thead><tbody>`;
+  rows.forEach(({f,i})=>{
+    h += `<tr>
+      <td class="name"><input type="text" value="${esc(f.source)}" onchange="upF(${i},'source',this.value)"></td>
+      <td class="name"><input type="text" value="${esc(f.destination)}" onchange="upF(${i},'destination',this.value)"></td>
+      <td><input type="number" min="0" value="${N(f.volume)}" onchange="upF(${i},'volume',this.value)"></td>
+      <td class="row-actions no-print"><span class="del" onclick="delF(${i})">✕</span></td></tr>`;
+  });
+  document.getElementById("tf").innerHTML = h+"</tbody>";
+}
+function renderRecon(){
+  let r = reconciliation();
+  if(profil!==0) r = r.filter(x=>+x.secteur===profil);
+  const bad = r.filter(x=>Math.abs(x.ec)>0.5 || Math.abs(x.ea)>0.5);
+  const el = document.getElementById("recon");
+  if(bad.length===0){ el.innerHTML = `<div class="ok">Cohérent : cumuls achat/cession = somme des flux.</div>`; return; }
+  let h = `<div class="warn">${bad.length} centre(s) avec écart entre le cumul saisi et la somme des flux :</div>
+    <div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>Cession cumul</th><th>Cession flux</th><th>Écart</th>
+    <th>Achat cumul</th><th>Achat flux</th><th>Écart</th></tr></thead><tbody>`;
+  bad.forEach(x=>{ h+=`<tr><td>${esc(x.centre)}</td><td>${fmt(x.cc)}</td><td>${fmt(x.cfx)}</td><td>${fmt(x.ec)}</td>
+    <td>${fmt(x.ac)}</td><td>${fmt(x.afx)}</td><td>${fmt(x.ea)}</td></tr>`; });
+  el.innerHTML = h+"</tbody></table></div>";
+}
+function renderRes(){
+  let syn = synthese();
+  let det = centres.map(c=>({c, r:perCentre(c)}));
+  if(profil!==0){ syn = syn.filter(s=>s.per==="SP"+profil); det = det.filter(o=>+o.c.secteur===profil); }
+
+  // KPI
+  const dr = synthese().find(s=>s.per==="DR GLOBALE");
+  const kel = document.getElementById("kpis");
+  if(profil===0){
+    kel.innerHTML = `
+      <div class="kpi"><div class="v">${pct(dr.rdt)}</div><div class="l">Rendement DR globale</div></div>
+      <div class="kpi"><div class="v">${fmt(dr.entree)}</div><div class="l">Entrée (m³)</div></div>
+      <div class="kpi"><div class="v">${fmt(dr.sortie)}</div><div class="l">Sortie comptée (m³)</div></div>
+      <div class="kpi"><div class="v">${fmt(dr.pertesNT)}</div><div class="l">Pertes non techniques (m³)</div></div>`;
+  } else {
+    const sp = syn[0];
+    kel.innerHTML = `<div class="kpi"><div class="v">${pct(sp?sp.rdt:0)}</div><div class="l">Rendement SP${profil}</div></div>
+      <div class="kpi"><div class="v">${fmt(sp?sp.entree:0)}</div><div class="l">Entrée (m³)</div></div>
+      <div class="kpi"><div class="v">${fmt(sp?sp.sortie:0)}</div><div class="l">Sortie comptée (m³)</div></div>`;
+  }
+
+  // Synthèse
+  let hs = `<thead><tr><th>Périmètre</th><th>Nb</th><th>Entrée</th><th>Achat net</th><th>Ventes</th>
+    <th>Cession nette</th><th>Pertes tech.</th><th>Sortie comptée</th><th>Rendement</th></tr></thead><tbody>`;
+  syn.forEach(s=>{ const b = s.per==="DR GLOBALE"?"bold":""; hs+=`<tr class="${b}"><td>${s.per}</td><td>${s.nb}</td>
+    <td>${fmt(s.entree)}</td><td>${fmt(s.achatNet)}</td><td>${fmt(s.ventes)}</td><td>${fmt(s.cessionNet)}</td>
+    <td>${fmt(s.pertes)}</td><td>${fmt(s.sortie)}</td><td>${pct(s.rdt)}</td></tr>`; });
+  document.getElementById("ts").innerHTML = hs+"</tbody>";
+
+  // Détail
+  let hd = `<thead><tr><th>Centre</th><th>SP</th><th>Cat.</th><th>Entrée</th><th>Ventes</th><th>Cession</th>
+    <th>Pertes tech.</th><th>Sortie</th><th>Pertes non tech.</th><th>Rendement</th></tr></thead><tbody>`;
+  det.forEach(({c,r})=>{ hd+=`<tr><td>${esc(c.centre)}</td><td>SP${c.secteur}</td><td>${c.categorie}</td>
+    <td>${fmt(r.entree)}</td><td>${fmt(r.ventes)}</td><td>${fmt(c.cession)}</td><td>${fmt(c.pertes)}</td>
+    <td>${fmt(r.sortie)}</td><td>${fmt(r.pertesNT)}</td><td>${pct(r.rdt)}</td></tr>`; });
+  document.getElementById("td").innerHTML = hd+"</tbody>";
+}
+
+// ---------- Mises à jour ----------
+function upC(i,f,v){ centres[i][f] = (f==="centre")? v : (f==="secteur"||f==="categorie")? +v : N(v); save(); }
+function upF(i,f,v){ flux[i][f] = (f==="volume")? N(v) : v; save(); }
+function delC(i){ centres.splice(i,1); save(); }
+function delF(i){ flux.splice(i,1); save(); }
+function addCentre(){ centres.push({centre:"NOUVEAU CENTRE", secteur:(profil||1), categorie:1, production:0,achat:0,achatExt:0,cession:0,srm:0,amendis:0,pertes:0}); save(); showTab("centres"); }
+function addFlux(){ flux.push({source:"",destination:"",volume:0}); save(); showTab("flux"); }
+function esc(s){ return String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+
+// ---------- Export ----------
+function download(name, text, type){
+  const b = new Blob(["﻿"+text], {type:type||"text/csv;charset=utf-8"});
+  const a = document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; a.click();
+}
+function exportCSV(kind){
+  let rows;
+  if(kind==="centres"){
+    rows = [["Centre","Secteur","Categorie","Production","Achat adduction","Achat externe","Cession adduction","Vente SRM","Vente AMENDIS","Pertes techniques","Rendement %"]];
+    centres.forEach(c=>{ const r=perCentre(c); rows.push([c.centre,"SP"+c.secteur,c.categorie,c.production,c.achat,c.achatExt,c.cession,c.srm,c.amendis,c.pertes,r.rdt.toFixed(2)]); });
+  } else {
+    rows = [["Perimetre","Nb centres","Entree","Achat net","Ventes","Cession nette","Pertes techniques","Sortie comptee","Rendement %"]];
+    synthese().forEach(s=>rows.push([s.per,s.nb,Math.round(s.entree),Math.round(s.achatNet),Math.round(s.ventes),Math.round(s.cessionNet),Math.round(s.pertes),Math.round(s.sortie),s.rdt.toFixed(2)]));
+  }
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(";")).join("\n");
+  download("rendement_"+kind+".csv", csv);
+}
+
+// ---------- Rapport imprimable ----------
+function printReport(){
+  const syn = synthese(), dr = syn.find(s=>s.per==="DR GLOBALE");
+  const det = centres.map(c=>({c,r:perCentre(c)}));
+  const faibles = det.filter(o=>o.r.rdt<90).sort((a,b)=>a.r.rdt-b.r.rdt);
+  const secs = syn.filter(s=>s.per.startsWith("SP"));
+  const worst = secs.slice().sort((a,b)=>a.rdt-b.rdt)[0], best = secs.slice().sort((a,b)=>b.rdt-a.rdt)[0];
+  const per = document.getElementById("periode").value;
+  let obs = [];
+  if(worst) obs.push(`Le secteur de production au rendement le plus faible est <b>${worst.per}</b> (${pct(worst.rdt)}), le plus élevé <b>${best.per}</b> (${pct(best.rdt)}).`);
+  if(faibles.length) obs.push(`${faibles.length} centre(s) sous 90 % : ${faibles.slice(0,6).map(o=>esc(o.c.centre)).join(", ")}.`);
+  obs.push(`Pertes non techniques au niveau DR : <b>${fmt(dr.pertesNT)} m³</b>.`);
+  const synRows = syn.map(s=>`<tr><td>${s.per}</td><td>${fmt(s.entree)}</td><td>${fmt(s.ventes)}</td><td>${fmt(s.cessionNet)}</td><td>${fmt(s.pertes)}</td><td>${fmt(s.sortie)}</td><td>${pct(s.rdt)}</td></tr>`).join("");
+  const detRows = det.map(o=>`<tr><td>${esc(o.c.centre)}</td><td>SP${o.c.secteur}</td><td>${o.c.categorie}</td><td>${fmt(o.r.entree)}</td><td>${fmt(o.r.sortie)}</td><td>${pct(o.r.rdt)}</td></tr>`).join("");
+  document.getElementById("report").innerHTML = `
+    <h1 style="color:#076b52">Rapport de rendement des adductions — DR</h1>
+    <p>Période : <b>${esc(per)||"(non précisée)"}</b></p>
+    <p style="font-size:30px;color:#0a8f6e;font-weight:800;margin:6px 0">${pct(dr.rdt)} <span style="font-size:14px;color:#555">rendement global DR</span></p>
+    <h2>Synthèse par périmètre</h2>
+    <table><thead><tr><th>Périmètre</th><th>Entrée</th><th>Ventes</th><th>Cession nette</th><th>Pertes tech.</th><th>Sortie comptée</th><th>Rendement</th></tr></thead><tbody>${synRows}</tbody></table>
+    <h2>Observations</h2><ul>${obs.map(o=>`<li>${o}</li>`).join("")}</ul>
+    <h2>Détail par centre</h2>
+    <table><thead><tr><th>Centre</th><th>SP</th><th>Cat.</th><th>Entrée</th><th>Sortie</th><th>Rendement</th></tr></thead><tbody>${detRows}</tbody></table>
+    <p style="margin-top:24px;color:#789;font-size:12px">Formule : (Ventes + Cession adduction + Pertes techniques) / (Production + Achat adduction + Achat externe) × 100. Généré automatiquement — à valider par le responsable DR.</p>`;
+  window.print();
+}
+
+// ---------- Init ----------
+load();
+document.getElementById("periode").value = periode;
+render();
+</script>
+</body>
+</html>
