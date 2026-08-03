@@ -118,7 +118,7 @@
     <h2>Analyse des pertes techniques (seuil ≤ 2 % de l'entrée)</h2>
     <div id="ana-pt"></div>
     <h2>Indice Linéaire de Pertes — ILP (m³/km/jour)</h2>
-    <p class="muted">ILP = Pertes techniques (m³/an) / Linéaire (km) / 365. Saisir le linéaire de chaque centre dans l'onglet Centres.</p>
+    <p class="muted">ILP = Volume perdu (fuites, casses = pertes non techniques, m³/an) / Linéaire (km) / 365. Saisir le linéaire de chaque centre dans l'onglet Centres.</p>
     <div id="ana-ilp"></div>
     <h2>Analyse des ventes</h2>
     <div id="ana-ventes"></div>
@@ -247,8 +247,10 @@ function perCentre(c){
   const entree = N(c.production)+N(c.achat)+N(c.achatDR)+N(c.achatExt);
   const sortie = ventes + N(c.cession) + N(c.pertes);
   const tauxPT = entree? N(c.pertes)/entree*100 : 0;
-  const ilp = N(c.lineaire)>0 ? N(c.pertes)/N(c.lineaire)/365 : null;
-  return {ventes, entree, sortie, pertesNT: entree-sortie, rdt: entree? sortie/entree*100:0, tauxPT, ilp};
+  const pertesNT = entree - sortie;                       // volume perdu (fuites, casses)
+  const volPerdu = Math.max(0, pertesNT);
+  const ilp = N(c.lineaire)>0 ? volPerdu/N(c.lineaire)/365 : null;   // m³/km/jour
+  return {ventes, entree, sortie, pertesNT, volPerdu, rdt: entree? sortie/entree*100:0, tauxPT, ilp};
 }
 function elimInterne(names){
   const s = new Set(names); let t=0;
@@ -413,9 +415,9 @@ function renderAnalyses(){
   if(il.length===0){
     document.getElementById("ana-ilp").innerHTML = `<div class="warn">Saisir le linéaire (km) des centres dans l'onglet Centres pour calculer l'ILP.</div>`;
   } else {
-    let hi = `<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Pertes tech. (m³/an)</th>
+    let hi = `<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Volume perdu (m³/an)</th>
       <th>Linéaire (km)</th><th>ILP (m³/km/j)</th></tr></thead><tbody>`;
-    il.forEach(o=>{ hi+=`<tr><td>${esc(o.c.centre)}</td><td>SP${o.c.secteur}</td><td>${fmt(o.c.pertes)}</td>
+    il.forEach(o=>{ hi+=`<tr><td>${esc(o.c.centre)}</td><td>SP${o.c.secteur}</td><td>${fmt(o.r.volPerdu)}</td>
       <td>${fmt2(o.c.lineaire)}</td><td>${fmt2(o.r.ilp)}</td></tr>`; });
     document.getElementById("ana-ilp").innerHTML = hi+"</tbody></table></div>";
   }
