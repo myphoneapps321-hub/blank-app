@@ -133,14 +133,31 @@ def compute(centres: pd.DataFrame, flux: pd.DataFrame):
     elim_cat = {1: 0.0, 2: 0.0}
     elim_dr = 0.0
     unknown = set()
+    cess_flux, ach_flux = {}, {}  # somme des flux par centre (source / destination)
     for _, r in fx.iterrows():
         s, d, v = r["Source"], r["Destination"], float(r["Volume"])
+        cess_flux[s] = cess_flux.get(s, 0.0) + v
+        ach_flux[d] = ach_flux.get(d, 0.0) + v
         if s in cat and d in cat:
             elim_dr += v
             if cat[s] == cat[d]:
                 elim_cat[cat[s]] += v
         else:
             unknown.update({x for x in (s, d) if x not in cat})
+
+    # réconciliation : cumuls saisis (table Centres) vs somme des flux
+    recon_rows = []
+    for _, r in df.iterrows():
+        c = r["Centre"]
+        cf, af = cess_flux.get(c, 0.0), ach_flux.get(c, 0.0)
+        recon_rows.append({
+            "Centre": c,
+            "Cession (cumul)": r["Cession"], "Cession (flux)": cf,
+            "Écart cession": r["Cession"] - cf,
+            "Achat (cumul)": r["Achat"], "Achat (flux)": af,
+            "Écart achat": r["Achat"] - af,
+        })
+    recon = pd.DataFrame(recon_rows)
 
     def agg(sub, elim):
         prod, ach, ext = sub["Production"].sum(), sub["Achat"].sum(), sub["Achat externe"].sum()
@@ -168,7 +185,7 @@ def compute(centres: pd.DataFrame, flux: pd.DataFrame):
     dr_row.update(agg(df, elim_dr))
     synthese = pd.DataFrame(cat_rows + [dr_row])
 
-    return df, synthese, sorted(unknown), elim_cat, elim_dr
+    return df, synthese, sorted(unknown), elim_cat, elim_dr, recon
 
 
 # --------------------------------------------------------------------------- #
@@ -218,13 +235,25 @@ with tab_f:
                "tous les flux internes sont retirés du total DR.")
     st.session_state.flux = st.data_editor(
         st.session_state.flux, num_rows="dynamic", use_container_width=True,
-        key="ed_f", height=560,
+        key="ed_f", height=520,
         column_config={"Volume": st.column_config.NumberColumn(min_value=0.0, format="%.0f")},
     )
 
+    _, _, _, _, _, recon = compute(st.session_state.centres, st.session_state.flux)
+    st.markdown("**Réconciliation** — cumuls saisis (onglet Centres) vs somme des flux")
+    ecart = recon[(recon["Écart cession"].abs() > 0.5) | (recon["Écart achat"].abs() > 0.5)]
+    if ecart.empty:
+        st.success("Cohérent : chaque cumul achat/cession = somme des flux correspondants.")
+    else:
+        st.caption("Lignes avec écart (à vérifier) :")
+        st.dataframe(
+            ecart.style.format({c: "{:,.0f}" for c in ecart.columns if c != "Centre"}),
+            use_container_width=True,
+        )
+
 with tab_r:
     flux_used = st.session_state.flux if netting else default_flux_df().assign(Volume=0.0)
-    detail, synthese, unknown, elim_cat, elim_dr = compute(st.session_state.centres, flux_used)
+    detail, synthese, unknown, elim_cat, elim_dr, _ = compute(st.session_state.centres, flux_used)
 
     if unknown:
         st.warning("Centres cités dans les flux mais absents de la liste : "
