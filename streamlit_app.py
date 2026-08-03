@@ -74,7 +74,7 @@ CENTRES_DATA = [
     ("ST TARGUIST", 4, 1, 453963, 388468, 0, 0, 815335, 0, 273),
 ]
 
-COLS = ["Centre", "Section", "Catégorie", "Production", "Achat adduction",
+COLS = ["Centre", "Secteur", "Catégorie", "Production", "Achat adduction",
         "Achat externe", "Cession adduction", "Vente SRM", "Vente AMENDIS",
         "Pertes techniques"]
 NUM_COLS = COLS[3:]
@@ -142,7 +142,7 @@ def compute(centres, flux):
     df = centres.copy()
     for c in NUM_COLS:
         df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0.0)
-    for c in ("Section", "Catégorie"):
+    for c in ("Secteur", "Catégorie"):
         df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0).astype(int)
 
     df["Ventes"] = df["Vente SRM"] + df["Vente AMENDIS"]
@@ -175,7 +175,7 @@ def compute(centres, flux):
 
     rows = []
     for s in SECTEURS:
-        sub = df[df["Section"] == s]
+        sub = df[df["Secteur"] == s]
         if len(sub):
             rows.append({"Périmètre": f"SP{s}", **agg(sub)})
     for c in (1, 2):
@@ -223,8 +223,8 @@ def build_html_report(synthese, detail, periode):
 
     obs = []
     if worst_sec is not None:
-        obs.append(f"La section de production au rendement le plus faible est <b>{worst_sec['Périmètre']}</b> "
-                   f"({worst_sec['Rendement %']:.2f} %), la plus élevée <b>{best_sec['Périmètre']}</b> "
+        obs.append(f"Le secteur de production au rendement le plus faible est <b>{worst_sec['Périmètre']}</b> "
+                   f"({worst_sec['Rendement %']:.2f} %), le plus élevé <b>{best_sec['Périmètre']}</b> "
                    f"({best_sec['Rendement %']:.2f} %).")
     if len(faibles):
         noms = ", ".join(faibles["Centre"].head(6))
@@ -234,7 +234,7 @@ def build_html_report(synthese, detail, periode):
 
     syn_cols = ["Périmètre", "Entrée", "Ventes", "Cession nette", "Pertes techniques",
                 "Sortie comptée", "Rendement %"]
-    det_cols = ["Centre", "Section", "Catégorie", "Entrée", "Sortie comptée", "Rendement %"]
+    det_cols = ["Centre", "Secteur", "Catégorie", "Entrée", "Sortie comptée", "Rendement %"]
     return f"""<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <title>Rapport rendement adductions</title><style>
 body{{font-family:Segoe UI,Arial,sans-serif;margin:32px;color:#173}}
@@ -267,7 +267,7 @@ st.sidebar.title("💧 Rendement adductions")
 profil = st.sidebar.radio(
     "Profil / accès",
     ["Responsable DR"] + [f"Agent SP{s}" for s in SECTEURS],
-    help="Un agent de section de production ne saisit que son périmètre ; le responsable DR "
+    help="Un agent de secteur de production ne saisit que son périmètre ; le responsable DR "
          "voit tout et édite les rapports.",
 )
 periode = st.sidebar.text_input("Période", value="")
@@ -279,8 +279,8 @@ if st.sidebar.button("↺ Réinitialiser"):
     st.rerun()
 
 centres = st.session_state.centres.copy()
-centres["Section"] = pd.to_numeric(centres["Section"], errors="coerce").fillna(0).astype(int)
-sec_of = dict(zip(centres["Centre"], centres["Section"]))
+centres["Secteur"] = pd.to_numeric(centres["Secteur"], errors="coerce").fillna(0).astype(int)
+sec_of = dict(zip(centres["Centre"], centres["Secteur"]))
 
 is_dr = profil == "Responsable DR"
 mon_secteur = None if is_dr else int(profil.replace("Agent SP", ""))
@@ -291,12 +291,12 @@ mon_secteur = None if is_dr else int(profil.replace("Agent SP", ""))
 if is_dr:
     st.title("Tableau de bord — Responsable DR")
 else:
-    st.title(f"Saisie — Section de production {mon_secteur} (SP{mon_secteur})")
-    st.caption("Vous ne modifiez que les centres et les flux de votre section de production.")
+    st.title(f"Saisie — Secteur de production {mon_secteur} (SP{mon_secteur})")
+    st.caption("Vous ne modifiez que les centres et les flux de votre secteur de production.")
 
 col_cfg = {
-    "Section": st.column_config.SelectboxColumn("Section prod.", options=SECTEURS, required=True,
-        help="Section de production (SP1 à SP4)"),
+    "Secteur": st.column_config.SelectboxColumn("Secteur prod.", options=SECTEURS, required=True,
+        help="Secteur de production (SP1 à SP4)"),
     "Catégorie": st.column_config.SelectboxColumn(options=[1, 2], required=True,
         help="1 = petites/moyennes · 2 = grandes"),
     **{c: st.column_config.NumberColumn(min_value=0.0, format="%.0f") for c in NUM_COLS},
@@ -314,9 +314,9 @@ with tabs[0]:
                                 column_config=col_cfg)
         st.session_state.centres = edited
     else:
-        st.subheader(f"Centres de la section de production {mon_secteur} (SP{mon_secteur})")
-        mine = st.session_state.centres[st.session_state.centres["Section"] == mon_secteur]
-        others = st.session_state.centres[st.session_state.centres["Section"] != mon_secteur]
+        st.subheader(f"Centres de la secteur de production {mon_secteur} (SP{mon_secteur})")
+        mine = st.session_state.centres[st.session_state.centres["Secteur"] == mon_secteur]
+        others = st.session_state.centres[st.session_state.centres["Secteur"] != mon_secteur]
         edited = st.data_editor(mine, num_rows="dynamic", use_container_width=True,
                                 key="ed_c", height=520, column_config=col_cfg)
         st.session_state.centres = pd.concat([others, edited], ignore_index=True)
@@ -325,7 +325,7 @@ with tabs[0]:
 with tabs[1]:
     st.subheader("Transferts internes à la DR (source → destination)")
     st.caption("Volume de chaque cession interne. Élimination automatique : "
-               "intra-section, intra-catégorie et intra-DR.")
+               "intra-secteur, intra-catégorie et intra-DR.")
     flux = st.session_state.flux
     if is_dr:
         edited_f = st.data_editor(flux, num_rows="dynamic", use_container_width=True,
@@ -357,7 +357,7 @@ with tabs[1]:
 with tabs[2]:
     detail, synthese, recon = compute(st.session_state.centres, st.session_state.flux)
     if not is_dr:
-        detail = detail[detail["Section"] == mon_secteur]
+        detail = detail[detail["Secteur"] == mon_secteur]
         synthese = synthese[synthese["Périmètre"] == f"SP{mon_secteur}"]
 
     if is_dr:
@@ -378,11 +378,11 @@ with tabs[2]:
         st.bar_chart(synthese.set_index("Périmètre")["Rendement %"])
 
     st.subheader("Détail par centre")
-    show = detail[["Centre", "Section", "Catégorie", "Entrée", "Ventes",
+    show = detail[["Centre", "Secteur", "Catégorie", "Entrée", "Ventes",
                    "Cession adduction", "Pertes techniques", "Sortie comptée",
                    "Pertes non tech.", "Rendement %"]]
     st.dataframe(show.style.format({**{c: "{:,.0f}" for c in show.columns
-                 if c not in ("Centre", "Section", "Catégorie", "Rendement %")},
+                 if c not in ("Centre", "Secteur", "Catégorie", "Rendement %")},
                  "Rendement %": "{:.2f}"}), use_container_width=True, height=520)
 
 # --- Rapports (responsable DR) ---
