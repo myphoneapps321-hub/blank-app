@@ -246,9 +246,10 @@ const DEF_CENTRES=[
  ["PRODUCTION LARACHE",4,1,2621183,59828,0,0,2627077,0,0],
 ];
 const DEF_BRUTES=[["TRANSPORT EAUX BRUTES EL HACHEF",1],["TRANSPORT EAUX BRUTES GHISS",3],["TRANSPORT EAUX BRUTES LOUKKOS",4]];
-// Cessions/achats vers une autre DR (résidus reconstruits — à vérifier/ajuster)
-const CESSION_DR={"PRODUCTION CHARF EL AKAB (CEA)":1982503,"TRANSPORT M'HARHAR-KSAR SGHIR":121720,"CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla":11270,"CHAMPS CAPTANTS AL HOCEIMA":20669,"TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE":396242,"PRODUCTION ST LOUKKOS":301353,"PRODUCTION OUEZZANE OUEST":1126031,"TRANSPORT KSAR KEBIR":560512};
-const ACHAT_DR={"TRANSPORT M'HARHAR-KSAR SGHIR":2297474,"ST TANGER MED & PRODUCTION TAGHRAMT":121720,"CENTRE TRANSPORT RAOUZ":26697,"CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla":9255,"PRODUCTION OUEZZANE EST":1943564,"PRODUCTION LARACHE":59828};
+// Cessions/achats vers une AUTRE DR — uniquement les flux inter-DR confirmés par le
+// schéma (les autres écarts internes deviennent des pertes non techniques). À ajuster.
+const CESSION_DR={"PRODUCTION OUEZZANE OUEST":1126031,"PRODUCTION ST LOUKKOS":301353,"TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE":396242};  // -> DR4 / DR6
+const ACHAT_DR={"PRODUCTION OUEZZANE EST":1943564};  // <- DR5
 // Cessions internes orientées [source, destination, volume]
 const DEF_FLUX=[
  ["ST HACHEF","PRODUCTION CHARF EL AKAB (CEA)",34290580],["ST HACHEF","TRANSPORT EAUX TRAITEES HACHEF",3045380],
@@ -452,9 +453,11 @@ function renderRes(){
   }
   // Détail par centre — format NORMATIF
   let det=mine(potables()).map(c=>({c,r:perCentre(c)}));
+  const sup100=det.filter(o=>o.r.rdt>100.001);
+  let alerte=sup100.length?`<div class="warn" style="margin-bottom:8px">⚠ ${sup100.length} centre(s) à rendement > 100 % (sortie > entrée) — achat interne manquant, à corriger via les flux : ${sup100.slice(0,5).map(o=>esc(o.c.centre)).join(", ")}.</div>`:"";
   let hd=`<thead><tr><th>Centre Production</th><th>Production</th><th>Achat adduction</th><th>Achat externe adduction</th><th>Cession adduction</th><th>Ventes sur adduction</th><th>Pertes techniques sur adduction</th><th>Rendement adduction</th></tr></thead><tbody>`;
-  det.forEach(({c,r})=>{ hd+=`<tr><td>${esc(c.centre)}</td><td>${fmt(r.production)}</td><td>${fmt(r.achatAdd)}</td><td>${fmt(c.achatExt)}</td><td>${fmt(r.cessionAdd)}</td><td>${fmt(r.ventes)}</td><td>${fmt(c.pertes)}</td><td>${pct(r.rdt)}</td></tr>`; });
-  document.getElementById("td").innerHTML=hd+"</tbody>";
+  det.forEach(({c,r})=>{ const b=r.rdt>100.001?' class="bad"':''; hd+=`<tr><td>${esc(c.centre)}</td><td>${fmt(r.production)}</td><td>${fmt(r.achatAdd)}</td><td>${fmt(c.achatExt)}</td><td>${fmt(r.cessionAdd)}</td><td>${fmt(r.ventes)}</td><td>${fmt(c.pertes)}</td><td${b}>${pct(r.rdt)}</td></tr>`; });
+  document.getElementById("td").innerHTML=alerte+"<div class='tbl-wrap'><table>"+hd+"</tbody></table></div>";
 }
 function renderAnalyses(){
   let det=mine(potables()).map(c=>({c,r:perCentre(c)}));
