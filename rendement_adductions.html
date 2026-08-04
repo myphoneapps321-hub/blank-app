@@ -546,10 +546,10 @@ function renderRes(){
   }
   // Détail par centre — format NORMATIF
   let det=mine(potables()).map(c=>({c,r:perCentre(c)}));
-  const sup100=det.filter(o=>o.r.rdt>100.5);
+  const sup100=det.filter(o=>o.r.rdt>100.001);
   let alerte=sup100.length?`<div class="warn" style="margin-bottom:8px">⚠ ${sup100.length} centre(s) à rendement > 100 % (sortie > entrée) — achat interne manquant, à corriger via les flux : ${sup100.slice(0,5).map(o=>esc(o.c.centre)).join(", ")}.</div>`:"";
   let hd=`<thead><tr><th>Centre Production</th><th>Production</th><th>Achat adduction</th><th>Achat externe adduction</th><th>Cession adduction</th><th>Ventes sur adduction</th><th>Pertes techniques sur adduction</th><th>Rendement adduction</th></tr></thead><tbody>`;
-  det.forEach(({c,r})=>{ const b=r.rdt>100.5?' class="bad"':''; hd+=`<tr><td>${esc(c.centre)}</td><td>${fmt(r.production)}</td><td>${fmt(r.achatAdd)}</td><td>${fmt(c.achatExt)}</td><td>${fmt(r.cessionAdd)}</td><td>${fmt(r.ventes)}</td><td>${fmt(c.pertes)}</td><td${b}>${pct(r.rdt)}</td></tr>`; });
+  det.forEach(({c,r})=>{ const b=r.rdt>100.001?' class="bad"':''; hd+=`<tr><td>${esc(c.centre)}</td><td>${fmt(r.production)}</td><td>${fmt(r.achatAdd)}</td><td>${fmt(c.achatExt)}</td><td>${fmt(r.cessionAdd)}</td><td>${fmt(r.ventes)}</td><td>${fmt(c.pertes)}</td><td${b}>${pct(r.rdt)}</td></tr>`; });
   document.getElementById("td").innerHTML=alerte+"<div class='tbl-wrap'><table>"+hd+"</tbody></table></div>";
 }
 function renderAnalyses(){
