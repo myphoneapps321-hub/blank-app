@@ -130,30 +130,25 @@
 
 <main>
   <section class="panel active" id="p-ref">
-    <div class="rub">① Répartition & identité des centres</div>
+    <div class="rub">Base de données</div>
     <h2>Répartition par secteur de production</h2>
     <div class="chips" id="ref-chips"></div>
-    <div class="ok" style="margin-bottom:12px">📥 <b>Import de données</b> : menu <b>« Éditer → Modèle d'import »</b> pour récupérer le gabarit CSV, remplissez-le (dans Excel : <i>Enregistrer sous → CSV</i>), puis <b>« Importer »</b> en haut. Deux fichiers acceptés (auto‑détectés) : <b>centres</b> (production, ventes, pertes, autre DR…) ou <b>flux</b> (colonnes <i>Source ; Destination ; Volume</i> pour les cessions internes).</div>
     <h2>Identité des centres</h2>
-    <p class="muted">Nom, secteur, catégorie (1 petites/moyennes · 2 grandes · 3 stations de traitement), type d'eau et linéaire. Les volumes se saisissent dans les autres onglets.</p>
     <div class="tbl-wrap"><table id="tref"></table></div>
     <p class="no-print" style="margin-top:10px"><button class="sec" onclick="addCentre()">+ Ajouter un centre</button></p>
   </section>
 
   <section class="panel" id="p-prod">
-    <div class="rub">② Production propre — par type de ressource</div>
+    <div class="rub">Production propre</div>
     <div id="prod-kpi" class="kpis"></div>
-    <p class="muted">Superficielle = stations de traitement (ST) · Souterraine = forages/puits/sources (adductions) · Dessalement. Le total par centre alimente le rendement. Centres mixtes à répartir manuellement : ST Tanger Med & Taghramt, ST Targuist.</p>
     <div class="tbl-wrap"><table id="tprod"></table></div>
   </section>
 
   <section class="panel" id="p-flux">
-    <div class="rub">③ Cessions & achats (par secteur) — sommation / netting</div>
+    <div class="rub">Cessions & achats</div>
     <h2>Achats & cessions vers une autre DR</h2>
-    <p class="muted">Ex. SP4 : achat depuis DR5, cession vers DR4 · SP3 : cession vers DR6. Ces volumes ne sont jamais éliminés (ils entrent/sortent du périmètre DR).</p>
     <div class="tbl-wrap"><table id="tinterdr"></table></div>
     <h2>Cessions internes entre centres (source → destination)</h2>
-    <p class="muted">Élimination automatique : intra-secteur, intra-catégorie, intra-DR.</p>
     <div class="tbl-wrap"><table id="tf"></table></div>
     <p class="no-print" style="margin-top:10px"><button class="sec" onclick="addFlux()">+ Ajouter un flux interne</button></p>
     <h2>Récapitulatif cessions/achats par centre (interne + autre DR)</h2>
@@ -161,13 +156,12 @@
   </section>
 
   <section class="panel" id="p-vp">
-    <div class="rub">④ Ventes & pertes (par secteur) — sommes simples</div>
-    <p class="muted">Vente SRM / AMENDIS séparées (quote-part par client) puis sommées. Pertes techniques en m³.</p>
+    <div class="rub">Ventes & pertes</div>
     <div class="tbl-wrap"><table id="tvp"></table></div>
   </section>
 
   <section class="panel" id="p-res">
-    <div class="rub">⑤ Résultats — rendements</div>
+    <div class="rub">Résultats</div>
     <div id="kpis" class="kpis"></div>
     <div id="checkcount" class="muted" style="margin-bottom:10px"></div>
     <h2>Synthèse 1 — par secteur de production</h2>
@@ -179,9 +173,8 @@
   </section>
 
   <section class="panel" id="p-ana">
-    <div class="rub">⑥ Analyses</div>
+    <div class="rub">Analyses</div>
     <h2>Pertes non techniques — eau réellement perdue (fuites, casses)</h2>
-    <p class="muted">Écart Entrée − Sortie de chaque centre : c'est ici que l'eau est perdue et que le rendement chute.</p>
     <div id="ana-pnt"></div>
     <h2>Pertes techniques (seuil ≤ 2 % de l'entrée)</h2>
     <div id="ana-pt"></div>
@@ -196,13 +189,12 @@
     <div class="rub">Schéma synoptique des adductions</div>
     <h2>Synoptique par secteur — systèmes de production</h2>
     <div class="no-print" id="syn-ctrl" style="margin-bottom:8px"></div>
-    <p class="muted">Chaque « système » = un réseau de production connecté. Cases = centres (couleur = catégorie : vert grandes · bleu petites/moyennes · gris stations). Flèches = cessions internes (volume m³).</p>
     <div class="tbl-wrap" id="synoptique" style="background:#fafdfc;border:1px solid var(--line);border-radius:8px;padding:8px"></div>
     <div id="syn-ext" style="margin-top:10px"></div>
   </section>
 
   <section class="panel" id="p-hist">
-    <div class="rub">⑦ Historique & comparaison</div>
+    <div class="rub">Historique</div>
     <h2>Historique des périodes</h2>
     <p class="no-print"><button onclick="archiver()">📌 Archiver la période courante</button>
        <button class="sec" onclick="exportHist()">⬇️ Exporter l'historique (CSV)</button></p>
@@ -514,8 +506,7 @@ function renderFlux(){
 function renderRecon(){
   // Récapitulatif par centre : cession/achat internes (flux) + autre DR = total
   let list=mine(potables());
-  let h=`<div class="ok">Cessions/achats internes = somme des flux orientés (ci-dessus). Total = interne + autre DR.</div>
-    <div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Achat interne (flux)</th><th>Achat autre DR</th><th>Achat adduction (total)</th><th>Cession interne (flux)</th><th>Cession autre DR</th><th>Cession adduction (total)</th></tr></thead><tbody>`;
+  let h=`<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Achat interne (flux)</th><th>Achat autre DR</th><th>Achat adduction (total)</th><th>Cession interne (flux)</th><th>Cession autre DR</th><th>Cession adduction (total)</th></tr></thead><tbody>`;
   list.forEach(c=>{ const ai=fluxIn(c.centre), ci=fluxOut(c.centre);
     h+=`<tr><td>${esc(c.centre)}</td><td>SP${c.secteur}</td><td>${fmt(ai)}</td><td>${fmt(c.achatDR)}</td><td>${fmt(ai+N(c.achatDR))}</td><td>${fmt(ci)}</td><td>${fmt(c.cessionDR)}</td><td>${fmt(ci+N(c.cessionDR))}</td></tr>`; });
   document.getElementById("recon").innerHTML=h+"</tbody></table></div>";
@@ -555,10 +546,10 @@ function renderRes(){
   }
   // Détail par centre — format NORMATIF
   let det=mine(potables()).map(c=>({c,r:perCentre(c)}));
-  const sup100=det.filter(o=>o.r.rdt>100.001);
+  const sup100=det.filter(o=>o.r.rdt>100.5);
   let alerte=sup100.length?`<div class="warn" style="margin-bottom:8px">⚠ ${sup100.length} centre(s) à rendement > 100 % (sortie > entrée) — achat interne manquant, à corriger via les flux : ${sup100.slice(0,5).map(o=>esc(o.c.centre)).join(", ")}.</div>`:"";
   let hd=`<thead><tr><th>Centre Production</th><th>Production</th><th>Achat adduction</th><th>Achat externe adduction</th><th>Cession adduction</th><th>Ventes sur adduction</th><th>Pertes techniques sur adduction</th><th>Rendement adduction</th></tr></thead><tbody>`;
-  det.forEach(({c,r})=>{ const b=r.rdt>100.001?' class="bad"':''; hd+=`<tr><td>${esc(c.centre)}</td><td>${fmt(r.production)}</td><td>${fmt(r.achatAdd)}</td><td>${fmt(c.achatExt)}</td><td>${fmt(r.cessionAdd)}</td><td>${fmt(r.ventes)}</td><td>${fmt(c.pertes)}</td><td${b}>${pct(r.rdt)}</td></tr>`; });
+  det.forEach(({c,r})=>{ const b=r.rdt>100.5?' class="bad"':''; hd+=`<tr><td>${esc(c.centre)}</td><td>${fmt(r.production)}</td><td>${fmt(r.achatAdd)}</td><td>${fmt(c.achatExt)}</td><td>${fmt(r.cessionAdd)}</td><td>${fmt(r.ventes)}</td><td>${fmt(c.pertes)}</td><td${b}>${pct(r.rdt)}</td></tr>`; });
   document.getElementById("td").innerHTML=alerte+"<div class='tbl-wrap'><table>"+hd+"</tbody></table></div>";
 }
 function renderAnalyses(){
