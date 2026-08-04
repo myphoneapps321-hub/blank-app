@@ -108,6 +108,7 @@
   <div class="t" data-tab="vp" onclick="showTab('vp')">🧾 Ventes & pertes</div>
   <div class="t" data-tab="res" onclick="showTab('res')">📊 Résultats</div>
   <div class="t" data-tab="ana" onclick="showTab('ana')">📈 Analyses</div>
+  <div class="t" data-tab="syn" onclick="showTab('syn')">🗺️ Synoptique</div>
   <div class="t" data-tab="hist" onclick="showTab('hist')">🕘 Historique</div>
 </div>
 
@@ -172,6 +173,15 @@
     <div id="ana-ilp"></div>
     <h2>Analyse des ventes</h2>
     <div id="ana-ventes"></div>
+  </section>
+
+  <section class="panel" id="p-syn">
+    <div class="rub">Schéma synoptique des adductions</div>
+    <h2>Synoptique par secteur — systèmes de production</h2>
+    <div class="no-print" id="syn-ctrl" style="margin-bottom:8px"></div>
+    <p class="muted">Chaque « système » = un réseau de production connecté. Cases = centres (couleur = catégorie : vert grandes · bleu petites/moyennes · gris stations). Flèches = cessions internes (volume m³).</p>
+    <div class="tbl-wrap" id="synoptique" style="background:#fafdfc;border:1px solid var(--line);border-radius:8px;padding:8px"></div>
+    <div id="syn-ext" style="margin-top:10px"></div>
   </section>
 
   <section class="panel" id="p-hist">
@@ -352,13 +362,67 @@ function synthCategories(){ const rows=[];
 // ===== Rendu =====
 function onProfil(){ profil=+document.getElementById("profil").value; render(); }
 function showTab(t){ document.querySelectorAll(".tabs .t").forEach(e=>e.classList.toggle("active",e.dataset.tab===t));
-  ["ref","prod","flux","vp","res","ana","hist"].forEach(x=>document.getElementById("p-"+x).classList.toggle("active",x===t)); }
+  ["ref","prod","flux","vp","res","ana","syn","hist"].forEach(x=>document.getElementById("p-"+x).classList.toggle("active",x===t)); }
 function esc(s){ return String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 function idxOf(c){ return centres.indexOf(c); }
 function mine(list){ return profil===0? list : list.filter(c=>+c.secteur===profil); }
 function num(i,f,v){ return `<td><input type="number" min="0" step="any" value="${N(v)}" onchange="upC(${i},'${f}',this.value)"></td>`; }
 
-function render(){ renderRef(); renderProd(); renderInterDR(); renderFlux(); renderRecon(); renderVP(); renderRes(); renderAnalyses(); renderHist(); }
+function render(){ renderRef(); renderProd(); renderInterDR(); renderFlux(); renderRecon(); renderVP(); renderRes(); renderAnalyses(); renderSynoptique(); renderHist(); }
+
+// ===== Synoptique (SVG auto) =====
+let synSec=1;
+function setSynSec(v){ synSec=+v; renderSynoptique(); }
+function catColor(cat){ return +cat===2?{bg:'#dff3ec',br:'#0a8f6e'}:+cat===3?{bg:'#eef1f4',br:'#8aa0ad'}:{bg:'#e6f0fb',br:'#1c6fb5'}; }
+function shortN(s){ s=String(s); return s.length>24? s.slice(0,23)+'…':s; }
+function compAny(nodes,edges){ const p={}; nodes.forEach(n=>p[n]=n); const f=x=>{while(p[x]!==x){p[x]=p[p[x]];x=p[x];}return x;};
+  edges.forEach(e=>{p[f(e.s)]=f(e.d);}); const g={}; nodes.forEach(n=>{const r=f(n);(g[r]=g[r]||[]).push(n);}); return Object.values(g); }
+function depthsG(nodes,edges){ const d={}; nodes.forEach(n=>d[n]=0); let ch=true,gd=0;
+  while(ch&&gd++<80){ch=false; edges.forEach(e=>{ if(d[e.d]<d[e.s]+1){d[e.d]=d[e.s]+1;ch=true;} });} return d; }
+function renderSynoptique(){
+  const sec = profil!==0? profil : synSec;
+  document.getElementById("syn-ctrl").innerHTML = profil!==0? `<b>Secteur SP${sec}</b>` :
+    `Secteur : <select onchange="setSynSec(this.value)">${[1,2,3,4].map(s=>`<option value="${s}" ${s===synSec?'selected':''}>SP${s}</option>`).join("")}</select>`;
+  const nodes=potables().filter(c=>+c.secteur===sec);
+  const nameSet=new Set(nodes.map(c=>c.centre)); const cmap={}; nodes.forEach(c=>cmap[c.centre]=c);
+  const internal=flux.filter(f=>nameSet.has(f.source)&&nameSet.has(f.destination)&&N(f.volume)>0);
+  const comps=compAny(nodes.map(c=>c.centre), internal.map(f=>({s:f.source,d:f.destination})));
+  const BW=182,BH=48,CX=224,RY=92; let yOff=26,maxX=0,parts=[];
+  comps.forEach((comp,ci)=>{
+    const ce=internal.filter(f=>comp.includes(f.source)&&comp.includes(f.destination));
+    const dep=depthsG(comp, ce.map(f=>({s:f.source,d:f.destination})));
+    const cols={}; comp.forEach(n=>{(cols[dep[n]]=cols[dep[n]]||[]).push(n);});
+    const pos={}; let rows=0;
+    Object.keys(cols).map(Number).sort((a,b)=>a-b).forEach(dk=>{ cols[dk].forEach((n,ri)=>{ pos[n]={x:24+dk*CX,y:yOff+ri*RY}; }); rows=Math.max(rows,cols[dk].length); });
+    if(comps.length>1) parts.push(`<text x="8" y="${yOff-6}" font-weight="800" fill="#076b52" font-size="13">Système ${ci+1}</text>`);
+    ce.forEach(f=>{ const a=pos[f.source],b=pos[f.destination]; if(!a||!b)return; const x1=a.x+BW,y1=a.y+BH/2,x2=b.x,y2=b.y+BH/2;
+      parts.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1c6fb5" stroke-width="2" marker-end="url(#arr)"/>`);
+      parts.push(`<rect x="${(x1+x2)/2-26}" y="${(y1+y2)/2-14}" width="52" height="13" rx="3" fill="#fff" opacity="0.9"/>`);
+      parts.push(`<text x="${(x1+x2)/2}" y="${(y1+y2)/2-4}" font-size="10" fill="#1c6fb5" text-anchor="middle">${fmt(f.volume)}</text>`); });
+    comp.forEach(n=>{ const p=pos[n],c=cmap[n],col=catColor(c.categorie),pr=perCentre(c);
+      parts.push(`<rect x="${p.x}" y="${p.y}" width="${BW}" height="${BH}" rx="9" fill="${col.bg}" stroke="${col.br}" stroke-width="1.6"/>`);
+      parts.push(`<text x="${p.x+9}" y="${p.y+19}" font-size="11" font-weight="700" fill="#123">${esc(shortN(n))}</text>`);
+      parts.push(`<text x="${p.x+9}" y="${p.y+35}" font-size="9.5" fill="#567">Prod ${fmt(pr.production)} · Vte ${fmt(pr.ventes)}</text>`);
+      maxX=Math.max(maxX,p.x+BW); });
+    yOff+=rows*RY+24;
+  });
+  const w=Math.max(maxX+30,420),h=yOff+10;
+  document.getElementById("synoptique").innerHTML = comps.length?
+    `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><defs><marker id="arr" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#1c6fb5"/></marker></defs>${parts.join("")}</svg>`
+    : `<div class="muted">Aucun flux interne renseigné pour ce secteur (saisir les volumes dans « Cessions & achats »).</div>`;
+  const secOf={}; centres.forEach(c=>secOf[c.centre]=c.secteur);
+  const out=flux.filter(f=>nameSet.has(f.source)&&!nameSet.has(f.destination)&&N(f.volume)>0);
+  const inn=flux.filter(f=>!nameSet.has(f.source)&&nameSet.has(f.destination)&&N(f.volume)>0);
+  const cDRs=nodes.filter(c=>N(c.cessionDR)>0), aDRs=nodes.filter(c=>N(c.achatDR)>0);
+  let ext="";
+  if(out.length||inn.length||cDRs.length||aDRs.length){ ext=`<div class="ok"><b>Échanges hors secteur :</b><br>`;
+    out.forEach(f=>ext+=`▶ ${esc(f.source)} → SP${secOf[f.destination]||'?'} — ${esc(f.destination)} : ${fmt(f.volume)} m³<br>`);
+    cDRs.forEach(c=>ext+=`▶ ${esc(c.centre)} → autre DR : ${fmt(c.cessionDR)} m³<br>`);
+    inn.forEach(f=>ext+=`◀ ${esc(f.destination)} ← SP${secOf[f.source]||'?'} — ${esc(f.source)} : ${fmt(f.volume)} m³<br>`);
+    aDRs.forEach(c=>ext+=`◀ ${esc(c.centre)} ← autre DR : ${fmt(c.achatDR)} m³<br>`);
+    ext+="</div>"; }
+  document.getElementById("syn-ext").innerHTML=ext;
+}
 
 function renderRef(){
   // chips répartition
