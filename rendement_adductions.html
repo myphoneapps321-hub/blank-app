@@ -162,6 +162,9 @@
 
   <section class="panel" id="p-ana">
     <div class="rub">⑥ Analyses</div>
+    <h2>Pertes non techniques — eau réellement perdue (fuites, casses)</h2>
+    <p class="muted">Écart Entrée − Sortie de chaque centre : c'est ici que l'eau est perdue et que le rendement chute.</p>
+    <div id="ana-pnt"></div>
     <h2>Pertes techniques (seuil ≤ 2 % de l'entrée)</h2>
     <div id="ana-pt"></div>
     <h2>Indice Linéaire de Pertes — ILP (m³/km/jour)</h2>
@@ -455,6 +458,15 @@ function renderRes(){
 }
 function renderAnalyses(){
   let det=mine(potables()).map(c=>({c,r:perCentre(c)}));
+  // Pertes non techniques (eau perdue) — classement décroissant
+  const pnt=det.filter(o=>o.r.entree>0).sort((a,b)=>b.r.pertesNT-a.r.pertesNT);
+  const totPNT=pnt.reduce((a,o)=>a+Math.max(0,o.r.pertesNT),0);
+  let hp=`<div class="warn">Volume total perdu (pertes non techniques) : <b>${fmt(totPNT)} m³</b> — c'est l'eau à récupérer pour tendre vers 100 %.</div>`;
+  hp+=`<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Entrée</th><th>Sortie comptée</th><th>Pertes non tech. (m³)</th><th>Taux</th><th>Part du total</th></tr></thead><tbody>`;
+  pnt.forEach(o=>{ const taux=o.r.entree? o.r.pertesNT/o.r.entree*100:0; const part=totPNT? Math.max(0,o.r.pertesNT)/totPNT*100:0;
+    const bad=o.r.pertesNT>0.5; hp+=`<tr><td>${esc(o.c.centre)}</td><td>SP${o.c.secteur}</td><td>${fmt(o.r.entree)}</td><td>${fmt(o.r.sortie)}</td><td class="${bad?'bad':'good'}">${fmt(o.r.pertesNT)}</td><td class="${bad?'bad':'good'}">${pct(taux)}</td><td>${part.toFixed(1)} %</td></tr>`; });
+  document.getElementById("ana-pnt").innerHTML=hp+"</tbody></table></div>";
+
   const pt=det.filter(o=>o.r.entree>0).sort((a,b)=>b.r.tauxPT-a.r.tauxPT);
   const dep=pt.filter(o=>o.r.tauxPT>SEUIL_PT);
   let h=dep.length?`<div class="warn">${dep.length} centre(s) > ${SEUIL_PT} %. Le plus élevé : <b>${esc(pt[0].c.centre)}</b> (${pct(pt[0].r.tauxPT)}).</div>`:`<div class="ok">Aucun centre au-dessus de ${SEUIL_PT} %.</div>`;
