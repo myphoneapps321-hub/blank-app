@@ -128,7 +128,6 @@
   <div class="navgrp">📊 Résultats &amp; analyses</div>
   <div class="nav" data-tab="res" onclick="showTab('res')">📊 Résultats</div>
   <div class="nav" data-tab="ana" onclick="showTab('ana')">📈 Analyses</div>
-  <div class="nav" data-tab="syn" onclick="showTab('syn')">🗺️ Synoptique</div>
   <div class="navgrp">🕘 Suivi</div>
   <div class="nav" data-tab="hist" onclick="showTab('hist')">🕘 Historique</div>
 </nav>
@@ -188,13 +187,6 @@
     <div id="ana-ventes"></div>
   </section>
 
-  <section class="panel" id="p-syn">
-    <div class="rub">Schéma synoptique des adductions</div>
-    <h2>Synoptique par secteur — systèmes de production</h2>
-    <div class="no-print" id="syn-ctrl" style="margin-bottom:8px"></div>
-    <div class="tbl-wrap" id="synoptique" style="background:#fafdfc;border:1px solid var(--line);border-radius:8px;padding:8px"></div>
-    <div id="syn-ext" style="margin-top:10px"></div>
-  </section>
 
   <section class="panel" id="p-hist">
     <div class="rub">Historique</div>
@@ -378,13 +370,13 @@ function synthCategories(){ const rows=[];
 // ===== Rendu =====
 function onProfil(){ profil=+document.getElementById("profil").value; render(); }
 function showTab(t){ document.querySelectorAll(".side .nav").forEach(e=>e.classList.toggle("active",e.dataset.tab===t));
-  ["ref","prod","flux","vp","res","ana","syn","hist"].forEach(x=>document.getElementById("p-"+x).classList.toggle("active",x===t)); }
+  ["ref","prod","flux","vp","res","ana","hist"].forEach(x=>document.getElementById("p-"+x).classList.toggle("active",x===t)); }
 function esc(s){ return String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 function idxOf(c){ return centres.indexOf(c); }
 function mine(list){ return profil===0? list : list.filter(c=>+c.secteur===profil); }
 function num(i,f,v){ return `<td><input type="number" min="0" step="any" value="${N(v)}" onchange="upC(${i},'${f}',this.value)"></td>`; }
 
-function render(){ renderRef(); renderProd(); renderInterDR(); renderFlux(); renderRecon(); renderVP(); renderRes(); renderAnalyses(); renderSynoptique(); renderHist(); }
+function render(){ renderRef(); renderProd(); renderInterDR(); renderFlux(); renderRecon(); renderVP(); renderRes(); renderAnalyses(); renderHist(); }
 
 // ===== Synoptique (SVG auto) =====
 let synSec=1;
