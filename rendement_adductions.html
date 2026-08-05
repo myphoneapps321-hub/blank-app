@@ -17,12 +17,14 @@
   button { padding:7px 12px; border:0; border-radius:6px; background:var(--teal); color:#fff; font-size:13px; cursor:pointer; }
   button.sec { background:#eef4f2; color:var(--teal-d); border:1px solid var(--line); }
   button:hover { filter:brightness(1.05); }
-  .tabs { display:flex; gap:4px; padding:10px 22px 0; flex-wrap:wrap; align-items:flex-end; background:linear-gradient(180deg,#dceaf9,transparent); }
-  .tabs .t { padding:8px 13px; background:#e2edf9; border-radius:8px 8px 0 0; cursor:pointer; font-size:13px; font-weight:600; color:#3d5f80; }
-  .tabs .t.active { background:#fff; color:var(--teal-d); box-shadow:0 -3px 0 var(--teal) inset; }
-  .tabs .tgrp { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:#5a7fa0; font-weight:800; padding:0 6px 9px 10px; border-left:2px solid #b9d3ef; margin-left:6px; }
-  .tabs .tgrp:first-child { border-left:0; margin-left:0; }
-  main { padding:16px 22px 60px; }
+  .layout { display:flex; align-items:stretch; }
+  .side { flex:0 0 218px; background:linear-gradient(180deg,#0c3f70,#1667b3); color:#fff; min-height:calc(100vh - 128px); padding:8px 0 30px; }
+  .side .navgrp { font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; color:#bcd6f2; font-weight:800; padding:15px 16px 5px; }
+  .side .nav { display:block; padding:9px 16px 9px 22px; color:#eaf2fb; cursor:pointer; font-size:13.5px; border-left:3px solid transparent; }
+  .side .nav:hover { background:rgba(255,255,255,.10); }
+  .side .nav.active { background:#fff; color:var(--teal-d); font-weight:700; border-left-color:#7fd8ff; }
+  main { padding:16px 22px 60px; flex:1; min-width:0; }
+  @media (max-width:820px){ .layout{ flex-direction:column; } .side{ flex-basis:auto; min-height:auto; display:flex; flex-wrap:wrap; padding:6px; } .side .navgrp{ width:100%; padding:8px 12px 2px; } }
   .panel { display:none; background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; }
   .panel.active { display:block; }
   .rub { font-size:11px; letter-spacing:.5px; text-transform:uppercase; color:#6b8a82; margin-bottom:6px; }
@@ -34,6 +36,8 @@
   th { background:#dbeafb; position:sticky; top:0; color:#0c3f70; font-weight:700; }
   tbody tr:nth-child(even){ background:#f5faff; }
   tbody tr:hover{ background:#e6f1fd; }
+  tbody tr.section td{ background:#0c3f70; color:#fff; font-weight:700; text-align:left; letter-spacing:.3px; }
+  tbody tr.section:hover td{ background:#0c3f70; }
   td:first-child, th:first-child { text-align:left; min-width:150px; }
   td input, td select { width:100%; min-width:80px; border:1px solid transparent; background:transparent; padding:3px 4px; text-align:right; font-size:12.5px; border-radius:4px; }
   td input:focus, td select:focus { border-color:var(--teal); background:#fff; outline:none; }
@@ -91,9 +95,9 @@
 <div class="bar no-print">
   <label>Profil :
     <select id="profil" onchange="onProfil()">
-      <option value="0">Responsable DR</option>
-      <option value="1">Agent SP1</option><option value="2">Agent SP2</option>
-      <option value="3">Agent SP3</option><option value="4">Agent SP4</option>
+      <option value="0">DR</option>
+      <option value="1">SPN1</option><option value="2">SPN2</option>
+      <option value="3">SPN3</option><option value="4">SPN4</option>
     </select>
   </label>
   <label>Période : <input type="text" id="periode" placeholder="ex. Année 2026" oninput="save()"></label>
@@ -114,19 +118,20 @@
   </label>
 </div>
 
-<div class="tabs no-print" id="tabs">
-  <span class="tgrp">🗄️ Base de données</span>
-  <div class="t active" data-tab="ref" onclick="showTab('ref')">🏭 Secteurs &amp; centres</div>
-  <div class="t" data-tab="prod" onclick="showTab('prod')">💧 Production propre</div>
-  <div class="t" data-tab="flux" onclick="showTab('flux')">🔁 Cessions &amp; achats</div>
-  <div class="t" data-tab="vp" onclick="showTab('vp')">🧾 Ventes &amp; pertes</div>
-  <span class="tgrp">📊 Résultats &amp; analyses</span>
-  <div class="t" data-tab="res" onclick="showTab('res')">📊 Résultats</div>
-  <div class="t" data-tab="ana" onclick="showTab('ana')">📈 Analyses</div>
-  <div class="t" data-tab="syn" onclick="showTab('syn')">🗺️ Synoptique</div>
-  <span class="tgrp">🕘 Suivi</span>
-  <div class="t" data-tab="hist" onclick="showTab('hist')">🕘 Historique</div>
-</div>
+<div class="layout">
+<nav class="side no-print">
+  <div class="navgrp">🗄️ Base de données</div>
+  <div class="nav active" data-tab="ref" onclick="showTab('ref')">🏭 Secteurs &amp; centres</div>
+  <div class="nav" data-tab="prod" onclick="showTab('prod')">💧 Production propre</div>
+  <div class="nav" data-tab="flux" onclick="showTab('flux')">🔁 Cessions &amp; achats</div>
+  <div class="nav" data-tab="vp" onclick="showTab('vp')">🧾 Ventes &amp; pertes</div>
+  <div class="navgrp">📊 Résultats &amp; analyses</div>
+  <div class="nav" data-tab="res" onclick="showTab('res')">📊 Résultats</div>
+  <div class="nav" data-tab="ana" onclick="showTab('ana')">📈 Analyses</div>
+  <div class="nav" data-tab="syn" onclick="showTab('syn')">🗺️ Synoptique</div>
+  <div class="navgrp">🕘 Suivi</div>
+  <div class="nav" data-tab="hist" onclick="showTab('hist')">🕘 Historique</div>
+</nav>
 
 <main>
   <section class="panel active" id="p-ref">
@@ -164,12 +169,10 @@
     <div class="rub">Résultats</div>
     <div id="kpis" class="kpis"></div>
     <div id="checkcount" class="muted" style="margin-bottom:10px"></div>
-    <h2>Synthèse 1 — par secteur de production</h2>
-    <div class="tbl-wrap"><table id="ts1"></table></div>
-    <h2>Synthèse 2 — par type d'adduction</h2>
-    <div class="tbl-wrap"><table id="ts2"></table></div>
     <h2>Détail par centre</h2>
     <div class="tbl-wrap"><table id="td"></table></div>
+    <h2>Rendement global (synthèses)</h2>
+    <div class="tbl-wrap"><table id="tsg"></table></div>
   </section>
 
   <section class="panel" id="p-ana">
@@ -205,6 +208,7 @@
 
   <section class="panel" id="report"></section>
 </main>
+</div>
 </div>
 
 <script>
@@ -365,7 +369,7 @@ function agg(sub){
           rdt:entree?sortie/entree*100:0, achatAdd:netAch, cessionAdd:netCess};
 }
 function synthSecteurs(){ const rows=[];
-  SECTEURS.forEach(s=>{ const sub=potables().filter(c=>+c.secteur===s); if(sub.length) rows.push({per:"SP"+s,...agg(sub)}); });
+  SECTEURS.forEach(s=>{ const sub=potables().filter(c=>+c.secteur===s); if(sub.length) rows.push({per:"SPN"+s,...agg(sub)}); });
   rows.push({per:"DR GLOBALE",...agg(potables())}); return rows; }
 function synthCategories(){ const rows=[];
   [2,1,3].forEach(cat=>{ const sub=potables().filter(c=>+c.categorie===cat); if(sub.length) rows.push({per:CATS[cat]+" (cat. "+cat+")",...agg(sub)}); });
@@ -373,7 +377,7 @@ function synthCategories(){ const rows=[];
 
 // ===== Rendu =====
 function onProfil(){ profil=+document.getElementById("profil").value; render(); }
-function showTab(t){ document.querySelectorAll(".tabs .t").forEach(e=>e.classList.toggle("active",e.dataset.tab===t));
+function showTab(t){ document.querySelectorAll(".side .nav").forEach(e=>e.classList.toggle("active",e.dataset.tab===t));
   ["ref","prod","flux","vp","res","ana","syn","hist"].forEach(x=>document.getElementById("p-"+x).classList.toggle("active",x===t)); }
 function esc(s){ return String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 function idxOf(c){ return centres.indexOf(c); }
@@ -410,8 +414,8 @@ function depthsG(nodes,edges){ const d={}; nodes.forEach(n=>d[n]=0); const cap=M
   while(ch&&gd++<nodes.length+2){ch=false; edges.forEach(e=>{ if(d[e.s]<cap && d[e.d]<d[e.s]+1){d[e.d]=d[e.s]+1;ch=true;} });} return d; }
 function renderSynoptique(){
   const sec = profil!==0? profil : synSec;
-  document.getElementById("syn-ctrl").innerHTML = profil!==0? `<b>Secteur SP${sec}</b>` :
-    `Secteur : <select onchange="setSynSec(this.value)">${[1,2,3,4].map(s=>`<option value="${s}" ${s===synSec?'selected':''}>SP${s}</option>`).join("")}</select>`;
+  document.getElementById("syn-ctrl").innerHTML = profil!==0? `<b>Secteur SPN${sec}</b>` :
+    `Secteur : <select onchange="setSynSec(this.value)">${[1,2,3,4].map(s=>`<option value="${s}" ${s===synSec?'selected':''}>SPN${s}</option>`).join("")}</select>`;
   const nodes=potables().filter(c=>+c.secteur===sec);
   const nameSet=new Set(nodes.map(c=>c.centre)); const cmap={}; nodes.forEach(c=>cmap[c.centre]=c);
   const internal=flux.filter(f=>nameSet.has(f.source)&&nameSet.has(f.destination)&&N(f.volume)>0);
@@ -446,9 +450,9 @@ function renderSynoptique(){
   const cDRs=nodes.filter(c=>N(c.cessionDR)>0), aDRs=nodes.filter(c=>N(c.achatDR)>0);
   let ext="";
   if(out.length||inn.length||cDRs.length||aDRs.length){ ext=`<div class="ok"><b>Échanges hors secteur :</b><br>`;
-    out.forEach(f=>ext+=`▶ ${esc(f.source)} → SP${secOf[f.destination]||'?'} — ${esc(f.destination)} : ${fmt(f.volume)} m³<br>`);
+    out.forEach(f=>ext+=`▶ ${esc(f.source)} → SPN${secOf[f.destination]||'?'} — ${esc(f.destination)} : ${fmt(f.volume)} m³<br>`);
     cDRs.forEach(c=>ext+=`▶ ${esc(c.centre)} → autre DR : ${fmt(c.cessionDR)} m³<br>`);
-    inn.forEach(f=>ext+=`◀ ${esc(f.destination)} ← SP${secOf[f.source]||'?'} — ${esc(f.source)} : ${fmt(f.volume)} m³<br>`);
+    inn.forEach(f=>ext+=`◀ ${esc(f.destination)} ← SPN${secOf[f.source]||'?'} — ${esc(f.source)} : ${fmt(f.volume)} m³<br>`);
     aDRs.forEach(c=>ext+=`◀ ${esc(c.centre)} ← autre DR : ${fmt(c.achatDR)} m³<br>`);
     ext+="</div>"; }
   document.getElementById("syn-ext").innerHTML=ext;
@@ -456,7 +460,7 @@ function renderSynoptique(){
 
 function renderRef(){
   // chips répartition
-  let chips = SECTEURS.map(s=>`<div class="chip"><b>${potables().filter(c=>+c.secteur===s).length}</b> centres · SP${s}</div>`).join("");
+  let chips = SECTEURS.map(s=>`<div class="chip"><b>${potables().filter(c=>+c.secteur===s).length}</b> centres · SPN${s}</div>`).join("");
   chips += `<div class="chip"><b>${potables().length}</b> potable (total)</div>`;
   chips += `<div class="chip">💧 <b>${brutes().length}</b> eaux brutes</div>`;
   document.getElementById("ref-chips").innerHTML = chips;
@@ -465,7 +469,7 @@ function renderRef(){
   let h=`<thead><tr><th>Centre</th><th>SP</th><th>Catégorie</th><th>Type d'eau</th><th>Linéaire km</th><th class="no-print"></th></tr></thead><tbody>`;
   list.forEach(c=>{ const i=idxOf(c); h+=`<tr>
     <td class="name"><input type="text" value="${esc(c.centre)}" onchange="upC(${i},'centre',this.value)"></td>
-    <td><select onchange="upC(${i},'secteur',this.value)">${[1,2,3,4].map(s=>`<option value="${s}" ${+c.secteur===s?"selected":""}>SP${s}</option>`).join("")}</select></td>
+    <td><select onchange="upC(${i},'secteur',this.value)">${[1,2,3,4].map(s=>`<option value="${s}" ${+c.secteur===s?"selected":""}>SPN${s}</option>`).join("")}</select></td>
     <td><select onchange="upC(${i},'categorie',this.value)">${[1,2,3].map(s=>`<option value="${s}" ${+c.categorie===s?"selected":""}>${s} · ${CATS[s]}</option>`).join("")}</select></td>
     <td><select onchange="upC(${i},'type',this.value)"><option value="potable" ${c.type!=="brute"?"selected":""}>Eau potable</option><option value="brute" ${c.type==="brute"?"selected":""}>Eau brute</option></select></td>
     ${num(i,"lineaire",c.lineaire)}<td class="row-actions no-print"><span class="del" onclick="delC(${i})">✕</span></td></tr>`; });
@@ -481,7 +485,7 @@ function renderProd(){
     <div class="kpi"><div class="v">${fmt(tD)}</div><div class="l">Dessalement (m³)</div></div>
     <div class="kpi"><div class="v">${fmt(tT)}</div><div class="l">Production propre totale (m³)</div></div>`;
   let h=`<thead><tr><th>Centre</th><th>SP</th><th>Superficielle</th><th>Souterraine</th><th>Dessalement</th><th>Total</th></tr></thead><tbody>`;
-  list.forEach(c=>{ const i=idxOf(c); h+=`<tr><td>${esc(c.centre)}</td><td>SP${c.secteur}</td>
+  list.forEach(c=>{ const i=idxOf(c); h+=`<tr><td>${esc(c.centre)}</td><td>SPN${c.secteur}</td>
     ${num(i,"prodSup",c.prodSup)}${num(i,"prodSout",c.prodSout)}${num(i,"prodDess",c.prodDess)}
     <td>${fmt(prodTot(c))}</td></tr>`; });
   document.getElementById("tprod").innerHTML=h+"</tbody>";
@@ -489,7 +493,7 @@ function renderProd(){
 function renderInterDR(){
   let list=mine(potables());
   let h=`<thead><tr><th>Centre</th><th>SP</th><th>Achat autre DR</th><th>Cession autre DR</th></tr></thead><tbody>`;
-  list.forEach(c=>{ const i=idxOf(c); h+=`<tr><td>${esc(c.centre)}</td><td>SP${c.secteur}</td>
+  list.forEach(c=>{ const i=idxOf(c); h+=`<tr><td>${esc(c.centre)}</td><td>SPN${c.secteur}</td>
     ${num(i,"achatDR",c.achatDR)}${num(i,"cessionDR",c.cessionDR)}</tr>`; });
   document.getElementById("tinterdr").innerHTML=h+"</tbody>";
 }
@@ -508,21 +512,27 @@ function renderRecon(){
   let list=mine(potables());
   let h=`<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Achat interne (flux)</th><th>Achat autre DR</th><th>Achat adduction (total)</th><th>Cession interne (flux)</th><th>Cession autre DR</th><th>Cession adduction (total)</th></tr></thead><tbody>`;
   list.forEach(c=>{ const ai=fluxIn(c.centre), ci=fluxOut(c.centre);
-    h+=`<tr><td>${esc(c.centre)}</td><td>SP${c.secteur}</td><td>${fmt(ai)}</td><td>${fmt(c.achatDR)}</td><td>${fmt(ai+N(c.achatDR))}</td><td>${fmt(ci)}</td><td>${fmt(c.cessionDR)}</td><td>${fmt(ci+N(c.cessionDR))}</td></tr>`; });
+    h+=`<tr><td>${esc(c.centre)}</td><td>SPN${c.secteur}</td><td>${fmt(ai)}</td><td>${fmt(c.achatDR)}</td><td>${fmt(ai+N(c.achatDR))}</td><td>${fmt(ci)}</td><td>${fmt(c.cessionDR)}</td><td>${fmt(ci+N(c.cessionDR))}</td></tr>`; });
   document.getElementById("recon").innerHTML=h+"</tbody></table></div>";
 }
 function renderVP(){
   let list=mine(potables());
   let h=`<thead><tr><th>Centre</th><th>SP</th><th>Vente SRM</th><th>Vente AMENDIS</th><th>Ventes totales</th><th>Pertes techniques</th></tr></thead><tbody>`;
-  list.forEach(c=>{ const i=idxOf(c); h+=`<tr><td>${esc(c.centre)}</td><td>SP${c.secteur}</td>
+  list.forEach(c=>{ const i=idxOf(c); h+=`<tr><td>${esc(c.centre)}</td><td>SPN${c.secteur}</td>
     ${num(i,"srm",c.srm)}${num(i,"amendis",c.amendis)}<td>${fmt(N(c.srm)+N(c.amendis))}</td>${num(i,"pertes",c.pertes)}</tr>`; });
   document.getElementById("tvp").innerHTML=h+"</tbody>";
 }
 // Tableau NORMATIF (colonnes officielles DR)
-function synRows(syn){
-  let h=`<thead><tr><th>Centre Production</th><th>Production</th><th>Achat adduction</th><th>Achat externe adduction</th><th>Cession adduction</th><th>Ventes sur adduction</th><th>Pertes techniques sur adduction</th><th>Rendement adduction</th></tr></thead><tbody>`;
-  syn.forEach(s=>{ const b=s.per==="DR GLOBALE"?"bold":""; h+=`<tr class="${b}"><td>${s.per}</td><td>${fmt(s.production)}</td><td>${fmt(s.achatAdd)}</td><td>${fmt(s.achatExt)}</td><td>${fmt(s.cessionAdd)}</td><td>${fmt(s.ventes)}</td><td>${fmt(s.pertes)}</td><td>${pct(s.rdt)}</td></tr>`; });
-  return h+"</tbody>";
+const SYN_HEAD=`<thead><tr><th>Périmètre</th><th>Production</th><th>Achat adduction</th><th>Achat externe adduction</th><th>Cession adduction</th><th>Ventes sur adduction</th><th>Pertes techniques sur adduction</th><th>Rendement adduction</th></tr></thead><tbody>`;
+function synRow(s,cls){ return `<tr class="${cls||''}"><td>${s.per}</td><td>${fmt(s.production)}</td><td>${fmt(s.achatAdd)}</td><td>${fmt(s.achatExt)}</td><td>${fmt(s.cessionAdd)}</td><td>${fmt(s.ventes)}</td><td>${fmt(s.pertes)}</td><td>${pct(s.rdt)}</td></tr>`; }
+function synCombined(){   // un seul tableau : 2 sous-synthèses + rendement global DR
+  const secs=synthSecteurs().filter(s=>s.per!=="DR GLOBALE");
+  const cats=synthCategories().filter(s=>s.per!=="DR GLOBALE");
+  const dr=synthSecteurs().find(s=>s.per==="DR GLOBALE");
+  const sect=t=>`<tr class="section"><td colspan="8">${t}</td></tr>`;
+  return SYN_HEAD + sect("Synthèse 1 — par secteur de production") + secs.map(s=>synRow(s)).join("")
+    + sect("Synthèse 2 — par type d'adduction") + cats.map(s=>synRow(s)).join("")
+    + synRow(dr,"bold") + "</tbody>";
 }
 function renderRes(){
   const dr=synthSecteurs().find(s=>s.per==="DR GLOBALE");
@@ -532,19 +542,19 @@ function renderRes(){
       <div class="kpi"><div class="v">${fmt(dr.entree)}</div><div class="l">Entrée (m³)</div></div>
       <div class="kpi"><div class="v">${fmt(dr.ventes)}</div><div class="l">Ventes (m³)</div></div>
       <div class="kpi"><div class="v">${fmt(dr.pertesNT)}</div><div class="l">Pertes non techniques (m³)</div></div>`;
-    document.getElementById("ts1").innerHTML=synRows(synthSecteurs());
-    document.getElementById("ts2").innerHTML=synRows(synthCategories());
     const nS=SECTEURS.reduce((a,s)=>a+potables().filter(c=>+c.secteur===s).length,0);
     const nC=[1,2,3].reduce((a,k)=>a+potables().filter(c=>+c.categorie===k).length,0);
     document.getElementById("checkcount").innerHTML=(nS===nC)?`<span class="ok" style="display:inline-block">✓ ${nS} centres potables par secteurs = ${nC} par catégories.</span>`:`<span class="warn" style="display:inline-block">⚠ ${nS} (secteurs) ≠ ${nC} (catégories).</span>`;
+    document.getElementById("tsg").innerHTML=synCombined();
   } else {
-    const sp=synthSecteurs().find(s=>s.per==="SP"+profil)||{rdt:0,entree:0,ventes:0};
-    kel.innerHTML=`<div class="kpi"><div class="v">${pct(sp.rdt)}</div><div class="l">Rendement SP${profil}</div></div>
+    const sp=synthSecteurs().find(s=>s.per==="SPN"+profil)||{per:"SPN"+profil,rdt:0,entree:0,ventes:0,production:0,achatAdd:0,achatExt:0,cessionAdd:0,pertes:0};
+    kel.innerHTML=`<div class="kpi"><div class="v">${pct(sp.rdt)}</div><div class="l">Rendement SPN${profil}</div></div>
       <div class="kpi"><div class="v">${fmt(sp.entree)}</div><div class="l">Entrée (m³)</div></div>
       <div class="kpi"><div class="v">${fmt(sp.ventes)}</div><div class="l">Ventes (m³)</div></div>`;
-    document.getElementById("ts1").innerHTML=synRows([sp]); document.getElementById("ts2").innerHTML=""; document.getElementById("checkcount").innerHTML="";
+    document.getElementById("checkcount").innerHTML="";
+    document.getElementById("tsg").innerHTML=SYN_HEAD+synRow(sp,"bold")+"</tbody>";
   }
-  // Détail par centre — format NORMATIF
+  // Détail par centre — format NORMATIF (au-dessus du rendement global)
   let det=mine(potables()).map(c=>({c,r:perCentre(c)}));
   const sup100=det.filter(o=>o.r.rdt>100.001);
   let alerte=sup100.length?`<div class="warn" style="margin-bottom:8px">⚠ ${sup100.length} centre(s) à rendement > 100 % (sortie > entrée) — achat interne manquant, à corriger via les flux : ${sup100.slice(0,5).map(o=>esc(o.c.centre)).join(", ")}.</div>`:"";
@@ -560,17 +570,17 @@ function renderAnalyses(){
   let hp=`<div class="warn">Volume total perdu (pertes non techniques) : <b>${fmt(totPNT)} m³</b> — c'est l'eau à récupérer pour tendre vers 100 %.</div>`;
   hp+=`<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Entrée</th><th>Sortie comptée</th><th>Pertes non tech. (m³)</th><th>Taux</th><th>Part du total</th></tr></thead><tbody>`;
   pnt.forEach(o=>{ const taux=o.r.entree? o.r.pertesNT/o.r.entree*100:0; const part=totPNT? Math.max(0,o.r.pertesNT)/totPNT*100:0;
-    const bad=o.r.pertesNT>0.5; hp+=`<tr><td>${esc(o.c.centre)}</td><td>SP${o.c.secteur}</td><td>${fmt(o.r.entree)}</td><td>${fmt(o.r.sortie)}</td><td class="${bad?'bad':'good'}">${fmt(o.r.pertesNT)}</td><td class="${bad?'bad':'good'}">${pct(taux)}</td><td>${part.toFixed(1)} %</td></tr>`; });
+    const bad=o.r.pertesNT>0.5; hp+=`<tr><td>${esc(o.c.centre)}</td><td>SPN${o.c.secteur}</td><td>${fmt(o.r.entree)}</td><td>${fmt(o.r.sortie)}</td><td class="${bad?'bad':'good'}">${fmt(o.r.pertesNT)}</td><td class="${bad?'bad':'good'}">${pct(taux)}</td><td>${part.toFixed(1)} %</td></tr>`; });
   document.getElementById("ana-pnt").innerHTML=hp+"</tbody></table></div>";
 
   const pt=det.filter(o=>o.r.entree>0).sort((a,b)=>b.r.tauxPT-a.r.tauxPT);
   const dep=pt.filter(o=>o.r.tauxPT>SEUIL_PT);
   let h=dep.length?`<div class="warn">${dep.length} centre(s) > ${SEUIL_PT} %. Le plus élevé : <b>${esc(pt[0].c.centre)}</b> (${pct(pt[0].r.tauxPT)}).</div>`:`<div class="ok">Aucun centre au-dessus de ${SEUIL_PT} %.</div>`;
   h+=`<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Pertes tech.</th><th>Entrée</th><th>Taux</th><th>Seuil 2 %</th></tr></thead><tbody>`;
-  pt.forEach(o=>{ const bad=o.r.tauxPT>SEUIL_PT; h+=`<tr><td>${esc(o.c.centre)}</td><td>SP${o.c.secteur}</td><td>${fmt(o.c.pertes)}</td><td>${fmt(o.r.entree)}</td><td class="${bad?'bad':'good'}">${pct(o.r.tauxPT)}</td><td>${bad?'✗':'✓'}</td></tr>`; });
+  pt.forEach(o=>{ const bad=o.r.tauxPT>SEUIL_PT; h+=`<tr><td>${esc(o.c.centre)}</td><td>SPN${o.c.secteur}</td><td>${fmt(o.c.pertes)}</td><td>${fmt(o.r.entree)}</td><td class="${bad?'bad':'good'}">${pct(o.r.tauxPT)}</td><td>${bad?'✗':'✓'}</td></tr>`; });
   document.getElementById("ana-pt").innerHTML=h+"</tbody></table></div>";
   const il=det.filter(o=>o.r.ilp!==null).sort((a,b)=>b.r.ilp-a.r.ilp);
-  document.getElementById("ana-ilp").innerHTML=il.length?`<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Volume perdu (m³/an)</th><th>Linéaire (km)</th><th>ILP (m³/km/j)</th></tr></thead><tbody>`+il.map(o=>`<tr><td>${esc(o.c.centre)}</td><td>SP${o.c.secteur}</td><td>${fmt(o.r.volPerdu)}</td><td>${fmt2(o.c.lineaire)}</td><td>${fmt2(o.r.ilp)}</td></tr>`).join("")+"</tbody></table></div>":`<div class="warn">Saisir le linéaire (km) dans l'onglet Secteurs & centres pour calculer l'ILP.</div>`;
+  document.getElementById("ana-ilp").innerHTML=il.length?`<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SP</th><th>Volume perdu (m³/an)</th><th>Linéaire (km)</th><th>ILP (m³/km/j)</th></tr></thead><tbody>`+il.map(o=>`<tr><td>${esc(o.c.centre)}</td><td>SPN${o.c.secteur}</td><td>${fmt(o.r.volPerdu)}</td><td>${fmt2(o.c.lineaire)}</td><td>${fmt2(o.r.ilp)}</td></tr>`).join("")+"</tbody></table></div>":`<div class="warn">Saisir le linéaire (km) dans l'onglet Secteurs & centres pour calculer l'ILP.</div>`;
   const totV=det.reduce((a,o)=>a+o.r.ventes,0), srm=det.reduce((a,o)=>a+N(o.c.srm),0), am=det.reduce((a,o)=>a+N(o.c.amendis),0);
   let hv=`<div class="kpis"><div class="kpi"><div class="v">${fmt(totV)}</div><div class="l">Ventes totales</div></div><div class="kpi"><div class="v">${fmt(srm)}</div><div class="l">SRM (${totV?(srm/totV*100).toFixed(1):0}%)</div></div><div class="kpi"><div class="v">${fmt(am)}</div><div class="l">AMENDIS (${totV?(am/totV*100).toFixed(1):0}%)</div></div></div>`;
   if(hist.length){ const p=hist[hist.length-1]; const d=p.ventesTotal?(totV-p.ventesTotal)/p.ventesTotal*100:0;
@@ -580,7 +590,7 @@ function renderAnalyses(){
 }
 function renderHist(){
   const el=document.getElementById("hist-list"), evo=document.getElementById("hist-evo");
-  if(profil!==0){ el.innerHTML=`<div class="muted">Historique réservé au Responsable DR.</div>`; evo.innerHTML=""; return; }
+  if(profil!==0){ el.innerHTML=`<div class="muted">Historique réservé au profil DR.</div>`; evo.innerHTML=""; return; }
   if(!hist.length){ el.innerHTML=`<div class="muted">Aucune période archivée.</div>`; evo.innerHTML=""; return; }
   let h=`<div class="tbl-wrap"><table><thead><tr><th>Période</th><th>Date</th><th>Rendement DR</th><th>Entrée</th><th>Ventes</th><th>Pertes tech.</th><th class="no-print"></th></tr></thead><tbody>`;
   hist.forEach((s,i)=>{ h+=`<tr><td>${esc(s.periode||"(sans nom)")}</td><td>${s.date}</td><td>${pct(s.dr.rdt)}</td><td>${fmt(s.dr.entree)}</td><td>${fmt(s.ventesTotal)}</td><td>${fmt(s.dr.pertes)}</td><td class="no-print"><span class="del" onclick="delHist(${i})">✕</span></td></tr>`; });
@@ -614,7 +624,7 @@ function toCSV(rows){ return rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""
 function exportCSV(kind){
   let rows;
   if(kind==="centres"){ rows=[["Centre","Type","Secteur","Categorie","Lineaire km","Prod superficielle","Prod souterraine","Dessalement","Prod totale","Achat interne","Achat autre DR","Achat externe","Cession interne","Cession autre DR","Vente SRM","Vente AMENDIS","Pertes tech","Rendement %","Taux PT %","ILP"]];
-    centres.forEach(c=>{ const r=perCentre(c); rows.push([c.centre,c.type,"SP"+c.secteur,c.categorie,c.lineaire,c.prodSup,c.prodSout,c.prodDess,r.production,r.achInt,c.achatDR,c.achatExt,r.cessInt,c.cessionDR,c.srm,c.amendis,c.pertes,r.rdt.toFixed(2),r.tauxPT.toFixed(2),r.ilp===null?"":r.ilp.toFixed(3)]); });
+    centres.forEach(c=>{ const r=perCentre(c); rows.push([c.centre,c.type,"SPN"+c.secteur,c.categorie,c.lineaire,c.prodSup,c.prodSout,c.prodDess,r.production,r.achInt,c.achatDR,c.achatExt,r.cessInt,c.cessionDR,c.srm,c.amendis,c.pertes,r.rdt.toFixed(2),r.tauxPT.toFixed(2),r.ilp===null?"":r.ilp.toFixed(3)]); });
   } else { rows=[["Synthese","Perimetre","Nb","Entree","Achat net","Achat autre DR","Ventes","Cession nette","Cession autre DR","Pertes tech","Sortie","Rendement %"]];
     synthSecteurs().forEach(s=>rows.push(["Secteur",s.per,s.nb,Math.round(s.entree),Math.round(s.achatNet),Math.round(s.achatDR),Math.round(s.ventes),Math.round(s.cessionNet),Math.round(s.cessionDR),Math.round(s.pertes),Math.round(s.sortie),s.rdt.toFixed(2)]));
     synthCategories().forEach(s=>rows.push(["Type adduction",s.per,s.nb,Math.round(s.entree),Math.round(s.achatNet),Math.round(s.achatDR),Math.round(s.ventes),Math.round(s.cessionNet),Math.round(s.cessionDR),Math.round(s.pertes),Math.round(s.sortie),s.rdt.toFixed(2)])); }
@@ -623,11 +633,11 @@ function exportCSV(kind){
 function exportHist(){ const rows=[["Periode","Date","Rendement DR %","Entree","Ventes","Pertes tech"]];
   hist.forEach(s=>rows.push([s.periode,s.date,s.dr.rdt.toFixed(2),Math.round(s.dr.entree),Math.round(s.ventesTotal),Math.round(s.dr.pertes)])); download("historique_rendement.csv",toCSV(rows)); }
 function exportProd(){ const rows=[["Centre","Secteur","Superficielle","Souterraine","Dessalement","Total"]];
-  potables().forEach(c=>rows.push([c.centre,"SP"+c.secteur,c.prodSup,c.prodSout,c.prodDess,prodTot(c)])); download("production_propre.csv",toCSV(rows)); }
+  potables().forEach(c=>rows.push([c.centre,"SPN"+c.secteur,c.prodSup,c.prodSout,c.prodDess,prodTot(c)])); download("production_propre.csv",toCSV(rows)); }
 function exportVentes(){ const rows=[["Centre","Secteur","Vente SRM","Vente AMENDIS","Ventes totales","Pertes techniques"]];
-  potables().forEach(c=>rows.push([c.centre,"SP"+c.secteur,c.srm,c.amendis,N(c.srm)+N(c.amendis),c.pertes])); download("ventes.csv",toCSV(rows)); }
+  potables().forEach(c=>rows.push([c.centre,"SPN"+c.secteur,c.srm,c.amendis,N(c.srm)+N(c.amendis),c.pertes])); download("ventes.csv",toCSV(rows)); }
 function exportModele(){ const rows=[["Centre","Secteur","Categorie","Type","Lineaire km","Prod superficielle","Prod souterraine","Dessalement","Achat autre DR","Achat externe","Cession autre DR","Vente SRM","Vente AMENDIS","Pertes tech"]];
-  potables().forEach(c=>rows.push([c.centre,"SP"+c.secteur,c.categorie,"potable",c.lineaire,c.prodSup,c.prodSout,c.prodDess,c.achatDR,c.achatExt,c.cessionDR,c.srm,c.amendis,c.pertes])); download("modele_import_centres.csv",toCSV(rows)); }
+  potables().forEach(c=>rows.push([c.centre,"SPN"+c.secteur,c.categorie,"potable",c.lineaire,c.prodSup,c.prodSout,c.prodDess,c.achatDR,c.achatExt,c.cessionDR,c.srm,c.amendis,c.pertes])); download("modele_import_centres.csv",toCSV(rows)); }
 function editer(v){ if(!v) return;
   ({prod:exportProd,rdt:()=>exportCSV('synthese'),ventes:exportVentes,base:()=>exportCSV('centres'),modele:exportModele,rapport:printReport}[v]||(()=>{}))();
   const s=document.getElementById('edition'); if(s) s.value=''; }
