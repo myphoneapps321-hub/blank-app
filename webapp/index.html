@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indicateurs de performance des adductions de DRPN</title>
+<style>
+  :root{ --teal:#1667b3; --teal-d:#0c3f70; --bg:#eef5fc; --line:#cfe0f2; --ink:#123049; --red:#c0392b; }
+  *{ box-sizing:border-box; } body{ font-family:"Segoe UI",Roboto,Arial,sans-serif; margin:0; background:var(--bg); color:var(--ink); }
+  header{ background:linear-gradient(120deg,var(--teal),var(--teal-d)); color:#fff; padding:12px 20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  header .t{ font-weight:800; font-size:16px; } header .sp{ flex:1; }
+  header .badge{ background:rgba(255,255,255,.18); padding:4px 10px; border-radius:20px; font-size:13px; }
+  header .demo{ background:#f0a800; color:#3a2a00; font-weight:700; }
+  button{ padding:7px 12px; border:0; border-radius:6px; background:var(--teal); color:#fff; font-size:13px; cursor:pointer; }
+  button.sec{ background:#eef4f2; color:var(--teal-d); border:1px solid var(--line); }
+  .layout{ display:flex; align-items:stretch; }
+  .side{ flex:0 0 210px; background:linear-gradient(180deg,#0c3f70,#1667b3); color:#fff; min-height:calc(100vh - 96px); padding:8px 0; }
+  .side .nav{ display:block; padding:10px 18px; color:#eaf2fb; cursor:pointer; font-size:14px; border-left:3px solid transparent; }
+  .side .nav.active{ background:#fff; color:var(--teal-d); font-weight:700; border-left-color:#7fd8ff; }
+  main{ flex:1; min-width:0; padding:16px 20px 50px; }
+  h2{ font-size:16px; color:var(--teal-d); }
+  .tbl-wrap{ overflow-x:auto; } table{ border-collapse:collapse; width:100%; font-size:12.5px; }
+  th,td{ border:1px solid var(--line); padding:6px 9px; text-align:right; white-space:nowrap; }
+  th{ background:#dbeafb; color:#0c3f70; position:sticky; top:0; } td:first-child,th:first-child{ text-align:left; }
+  tbody tr:nth-child(even){ background:#f5faff; }
+  td input{ width:100%; min-width:82px; border:1px solid transparent; background:transparent; text-align:right; padding:3px; border-radius:4px; }
+  td input:focus{ border-color:var(--teal); background:#fff; outline:none; }
+  tr.bold td{ font-weight:700; background:#eef6ff; } tr.section td{ background:#0c3f70; color:#fff; font-weight:700; text-align:left; }
+  td.bad{ color:var(--red); font-weight:700; } td.good{ color:#0a6b4a; }
+  .kpis{ display:flex; flex-wrap:wrap; gap:12px; margin-bottom:10px; }
+  .kpi{ flex:1; min-width:150px; background:#eaf3fd; border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .kpi .v{ font-size:24px; font-weight:800; color:var(--teal-d); } .kpi .l{ font-size:12px; color:#5a746c; }
+  .warn{ background:#fff6e6; border:1px solid #f0d9a8; color:#8a5a00; padding:8px 12px; border-radius:8px; font-size:12.5px; margin:6px 0; }
+  .ok{ background:#eafaf2; border:1px solid #bfe6d3; color:#0a6b4a; padding:8px 12px; border-radius:8px; font-size:12.5px; margin:6px 0; }
+  .up{ color:#0a6b4a; font-weight:700; } .down{ color:var(--red); font-weight:700; }
+  .overlay{ position:fixed; inset:0; background:linear-gradient(140deg,#1560a0,#082a45); display:flex; align-items:center; justify-content:center; z-index:50; }
+  .card{ background:#fff; padding:26px 30px; border-radius:14px; width:360px; max-width:92vw; box-shadow:0 10px 40px rgba(0,0,0,.3); text-align:center; }
+  .card h1{ font-size:18px; color:var(--teal-d); margin:0 0 4px; } .card p{ color:#5a746c; font-size:13px; margin:0 0 14px; }
+  .card input{ width:100%; padding:10px; margin:6px 0; border:1px solid var(--line); border-radius:8px; }
+  .card button{ width:100%; padding:11px; font-size:15px; margin-top:8px; }
+  .prof{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:6px; }
+  .prof button{ width:auto; margin:0; }
+  .msg{ color:var(--red); font-size:13px; min-height:18px; }
+  .save-ind{ font-size:12px; color:#0a6b4a; }
+  #app{ display:none; }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="gate">
+  <div class="card">
+    <h1>💧 DRPN — Indicateurs des adductions</h1>
+    <p id="gateSub">ONEE Branche Eau</p>
+    <div id="loginBox">
+      <input type="email" id="email" placeholder="Adresse e-mail" autocomplete="username">
+      <input type="password" id="pwd" placeholder="Mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')seConnecter()">
+      <button onclick="seConnecter()">Se connecter</button>
+      <p class="msg" id="loginMsg"></p>
+    </div>
+    <div id="demoBox" style="display:none">
+      <p style="color:#8a5a00">Mode démonstration (local) — choisissez un profil :</p>
+      <div class="prof">
+        <button onclick="demarrerDemo('dr',null)">DR</button>
+        <button onclick="demarrerDemo('agent',1)">SPN1</button>
+        <button onclick="demarrerDemo('agent',2)">SPN2</button>
+        <button onclick="demarrerDemo('agent',3)">SPN3</button>
+        <button onclick="demarrerDemo('agent',4)">SPN4</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <span class="t">💧 Adductions DRPN</span>
+    <span class="badge" id="whoBadge"></span>
+    <span class="badge demo" id="demoBadge" style="display:none">DÉMO</span>
+    <span class="save-ind" id="saveInd"></span>
+    <span class="sp"></span>
+    <button class="sec" onclick="quitter()">Déconnexion</button>
+  </header>
+  <div class="layout">
+    <nav class="side" id="side"></nav>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ============ CONFIG Supabase — laisser tel quel pour la démo ============
+const SUPABASE_URL = "https://fdqyotswnmpkptaqvrpj.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_klsJxMVLJlopjhEsuYcKrQ_JB0_kQJX";
+// ========================================================================
+
+const DEMO_CENTRES=[{"id":1,"centre":"TRANSPORT CHARF EL AKAB","secteur":1,"categorie":2,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":41426012,"amendis":0,"pertes":1800},{"id":2,"centre":"PRODUCTION CHARF EL AKAB (CEA)","secteur":1,"categorie":2,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":1680216,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":1490727,"amendis":0,"pertes":1800},{"id":3,"centre":"ST HACHEF","secteur":1,"categorie":3,"type":"potable","lineaire":0,"prod_sup":37343429,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":0,"amendis":0,"pertes":0},{"id":4,"centre":"TRANSPORT EAUX TRAITEES HACHEF","secteur":1,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":2924672,"amendis":0,"pertes":0},{"id":5,"centre":"ST M'HARHAR","secteur":1,"categorie":3,"type":"potable","lineaire":0,"prod_sup":11842871,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":0,"amendis":0,"pertes":0},{"id":6,"centre":"TRANSPORT M'HARHAR-KSAR SGHIR","secteur":1,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":36315,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":2709565,"amendis":0,"pertes":175663},{"id":7,"centre":"ST TANGER MED & PRODUCTION TAGHRAMT","secteur":1,"categorie":3,"type":"potable","lineaire":0,"prod_sup":1395479,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":818264,"amendis":0,"pertes":0},{"id":8,"centre":"CENTRE PRODUCTION RAOUZ (ST RAOUZ)","secteur":2,"categorie":3,"type":"potable","lineaire":0,"prod_sup":3631918,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":0,"amendis":0,"pertes":0},{"id":9,"centre":"CENTRE TRANSPORT RAOUZ","secteur":2,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":1576353,"amendis":0,"pertes":3769},{"id":10,"centre":"CENTRE DE PRODUCTION OUED MARTIL (ST O.MARTIL)","secteur":2,"categorie":3,"type":"potable","lineaire":0,"prod_sup":7491736,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":526,"amendis":0,"pertes":0},{"id":11,"centre":"CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla","secteur":2,"categorie":2,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":190375,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":186034,"amendis":0,"pertes":6697},{"id":12,"centre":"ST SMIR","secteur":2,"categorie":3,"type":"potable","lineaire":0,"prod_sup":4440023,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":0,"amendis":0,"pertes":0},{"id":13,"centre":"ST TORRETA","secteur":2,"categorie":3,"type":"potable","lineaire":0,"prod_sup":3059875,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":7255,"amendis":0,"pertes":0},{"id":14,"centre":"CENTRE TRANSPORT SMIR TORETA","secteur":2,"categorie":2,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":15999943,"amendis":0,"pertes":1800},{"id":15,"centre":"CENTRE DE PRODUCTION MOULAY BOUCHETA (ST)","secteur":2,"categorie":3,"type":"potable","lineaire":0,"prod_sup":402328,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":0,"amendis":0,"pertes":0},{"id":16,"centre":"CPT Mly Bouchta-Chefchaouen-Tetaoun","secteur":2,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":1725816,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":1791649,"amendis":0,"pertes":0},{"id":17,"centre":"CPT Bab Taza - Derdara","secteur":2,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":161698,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":457432,"amendis":0,"pertes":0},{"id":18,"centre":"CPT Oued Laou - Stehat","secteur":2,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":284199,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":273768,"amendis":0,"pertes":0},{"id":19,"centre":"CTP Bouhmed","secteur":2,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":325507,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":313742,"amendis":0,"pertes":0},{"id":20,"centre":"CPT Jebha-Bab Berred","secteur":2,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":424538,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":419875,"amendis":0,"pertes":522},{"id":21,"centre":"ST AL HOCEIMA","secteur":3,"categorie":3,"type":"potable","lineaire":0,"prod_sup":1696018,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":102711,"amendis":0,"pertes":0},{"id":22,"centre":"CHAMPS CAPTANTS AL HOCEIMA","secteur":3,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":3414776,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":219127,"amendis":0,"pertes":70},{"id":23,"centre":"TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA","secteur":3,"categorie":2,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":2436333,"amendis":0,"pertes":2493},{"id":24,"centre":"STATION DESSALEMENT AL HOCEIMA","secteur":3,"categorie":3,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":3465151,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":0,"amendis":0,"pertes":0},{"id":25,"centre":"TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE","secteur":3,"categorie":2,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":5729,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":396242,"srm":4501714,"amendis":0,"pertes":18480},{"id":26,"centre":"ST TARGUIST","secteur":3,"categorie":3,"type":"potable","lineaire":0,"prod_sup":453963,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":815335,"amendis":0,"pertes":273},{"id":27,"centre":"STATIONS DE TRAITEMENT SPECIFIQUES (ISSAGUEN-BNI AMMART-KETAMA)","secteur":3,"categorie":3,"type":"potable","lineaire":0,"prod_sup":129891,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":127562,"amendis":0,"pertes":0},{"id":28,"centre":"PRODUCTION ST LOUKKOS","secteur":4,"categorie":3,"type":"potable","lineaire":0,"prod_sup":7669298,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":301353,"srm":0,"amendis":0,"pertes":4854},{"id":29,"centre":"PRODUCTION OUEZZANE OUEST","secteur":4,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":1060243,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":1126031,"srm":2144559,"amendis":0,"pertes":69778},{"id":30,"centre":"PRODUCTION OUEZZANE EST","secteur":4,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":241367,"prod_dess":0,"achat_dr":1943564,"achat_ext":0,"cession_dr":0,"srm":1924116,"amendis":0,"pertes":48408},{"id":31,"centre":"TRANSPORT KSAR KEBIR","secteur":4,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":1646380,"amendis":0,"pertes":2324},{"id":32,"centre":"PRODUCTION KSAR LEKBIR","secteur":4,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":457796,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":861289,"amendis":0,"pertes":11751},{"id":33,"centre":"TRANSPORT LARACHE","secteur":4,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":1945815,"amendis":0,"pertes":36416},{"id":34,"centre":"PRODUCTION LARACHE","secteur":4,"categorie":1,"type":"potable","lineaire":0,"prod_sup":0,"prod_sout":2621183,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":2627077,"amendis":0,"pertes":0},{"id":35,"centre":"TRANSPORT EAUX BRUTES EL HACHEF","secteur":1,"categorie":1,"type":"brute","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":0,"amendis":0,"pertes":0},{"id":36,"centre":"TRANSPORT EAUX BRUTES GHISS","secteur":3,"categorie":1,"type":"brute","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":0,"amendis":0,"pertes":0},{"id":37,"centre":"TRANSPORT EAUX BRUTES LOUKKOS","secteur":4,"categorie":1,"type":"brute","lineaire":0,"prod_sup":0,"prod_sout":0,"prod_dess":0,"achat_dr":0,"achat_ext":0,"cession_dr":0,"srm":0,"amendis":0,"pertes":0}];
+const DEMO_FLUX=[{"id":1,"source":"ST HACHEF","destination":"PRODUCTION CHARF EL AKAB (CEA)","volume":34290580,"secteur":1},{"id":2,"source":"ST HACHEF","destination":"TRANSPORT EAUX TRAITEES HACHEF","volume":3045380,"secteur":1},{"id":3,"source":"PRODUCTION CHARF EL AKAB (CEA)","destination":"TRANSPORT CHARF EL AKAB","volume":42606302,"secteur":1},{"id":4,"source":"PRODUCTION CHARF EL AKAB (CEA)","destination":"TRANSPORT M'HARHAR-KSAR SGHIR","volume":1982503,"secteur":1},{"id":5,"source":"ST M'HARHAR","destination":"PRODUCTION CHARF EL AKAB (CEA)","volume":10258929,"secteur":1},{"id":6,"source":"ST M'HARHAR","destination":"TRANSPORT M'HARHAR-KSAR SGHIR","volume":1261340,"secteur":1},{"id":7,"source":"ST TANGER MED & PRODUCTION TAGHRAMT","destination":"TRANSPORT M'HARHAR-KSAR SGHIR","volume":545301,"secteur":1},{"id":8,"source":"TRANSPORT M'HARHAR-KSAR SGHIR","destination":"ST TANGER MED & PRODUCTION TAGHRAMT","volume":121720,"secteur":1},{"id":9,"source":"ST TANGER MED & PRODUCTION TAGHRAMT","destination":"CENTRE PRODUCTION RAOUZ (ST RAOUZ)","volume":153290,"secteur":1},{"id":10,"source":"CENTRE PRODUCTION RAOUZ (ST RAOUZ)","destination":"CENTRE TRANSPORT RAOUZ","volume":3769456,"secteur":2},{"id":11,"source":"CENTRE DE PRODUCTION OUED MARTIL (ST O.MARTIL)","destination":"CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla","volume":7491736,"secteur":2},{"id":12,"source":"ST SMIR","destination":"CENTRE TRANSPORT SMIR TORETA","volume":4440023,"secteur":2},{"id":13,"source":"ST TORRETA","destination":"CENTRE TRANSPORT SMIR TORETA","volume":3052620,"secteur":2},{"id":14,"source":"CENTRE TRANSPORT RAOUZ","destination":"CENTRE TRANSPORT SMIR TORETA","volume":1341019,"secteur":2},{"id":15,"source":"CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla","destination":"CENTRE TRANSPORT SMIR TORETA","volume":7311297,"secteur":2},{"id":16,"source":"CENTRE DE PRODUCTION MOULAY BOUCHETA (ST)","destination":"CPT Mly Bouchta-Chefchaouen-Tetaoun","volume":397808,"secteur":2},{"id":17,"source":"CPT Mly Bouchta-Chefchaouen-Tetaoun","destination":"CPT Bab Taza - Derdara","volume":320543,"secteur":2},{"id":18,"source":"PRODUCTION ST LOUKKOS","destination":"PRODUCTION OUEZZANE OUEST","volume":2420824,"secteur":4},{"id":19,"source":"PRODUCTION ST LOUKKOS","destination":"TRANSPORT KSAR KEBIR","volume":4942267,"secteur":4},{"id":20,"source":"TRANSPORT KSAR KEBIR","destination":"PRODUCTION KSAR LEKBIR","volume":458835,"secteur":4},{"id":21,"source":"TRANSPORT KSAR KEBIR","destination":"TRANSPORT LARACHE","volume":2063443,"secteur":4},{"id":22,"source":"ST AL HOCEIMA","destination":"TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA","volume":1590082,"secteur":3},{"id":23,"source":"CHAMPS CAPTANTS AL HOCEIMA","destination":"TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA","volume":1908859,"secteur":3},{"id":24,"source":"TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA","destination":"TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE","volume":941482,"secteur":3},{"id":25,"source":"STATION DESSALEMENT AL HOCEIMA","destination":"TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE","volume":3465151,"secteur":3},{"id":26,"source":"CHAMPS CAPTANTS AL HOCEIMA","destination":"TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE","volume":1233833,"secteur":3},{"id":27,"source":"TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE","destination":"ST TARGUIST","volume":388468,"secteur":3}];
+
+const CATS={2:"Grandes adductions",1:"Petites & moyennes",3:"Stations de traitement"};
+const SECTEURS=[1,2,3,4]; const SEUIL_PT=2.0;
+const N=x=>(isNaN(+x)?0:+x);
+const fmt=x=>Math.round(N(x)).toLocaleString("fr-FR");
+const fmt2=x=>N(x).toLocaleString("fr-FR",{maximumFractionDigits:2});
+const pct=x=>N(x).toFixed(2).replace(".",",")+" %";
+const esc=s=>String(s).replace(/</g,"&lt;").replace(/"/g,"&quot;");
+
+let sb=null, DEMO=true, centres=[], flux=[], hist=[], role="agent", secteur=null, tab="saisie";
+
+// ---- Calcul ----
+const potables=()=>centres.filter(c=>c.type!=="brute");
+const prodTot=c=>N(c.prod_sup)+N(c.prod_sout)+N(c.prod_dess);
+const fluxOut=n=>flux.reduce((t,f)=>t+(f.source===n?N(f.volume):0),0);
+const fluxIn =n=>flux.reduce((t,f)=>t+(f.destination===n?N(f.volume):0),0);
+function perCentre(c){ const production=prodTot(c), ventes=N(c.srm)+N(c.amendis);
+  const achInt=fluxIn(c.centre), cessInt=fluxOut(c.centre);
+  const entree=production+achInt+N(c.achat_dr)+N(c.achat_ext);
+  const sortie=ventes+cessInt+N(c.cession_dr)+N(c.pertes);
+  const pertesNT=entree-sortie, volPerdu=Math.max(0,pertesNT);
+  return {production,ventes,entree,sortie,pertesNT,volPerdu,
+    achatAdd:achInt+N(c.achat_dr), cessionAdd:cessInt+N(c.cession_dr),
+    rdt:entree?sortie/entree*100:0, tauxPT:entree?N(c.pertes)/entree*100:0,
+    ilp:N(c.lineaire)>0?volPerdu/N(c.lineaire)/365:null}; }
+function agg(sub){ const set=new Set(sub.map(c=>c.centre)); let bo=0,bi=0;
+  flux.forEach(f=>{ const s=set.has(f.source),d=set.has(f.destination); if(s&&!d)bo+=N(f.volume); if(d&&!s)bi+=N(f.volume); });
+  const S=fn=>sub.reduce((a,c)=>a+fn(c),0);
+  const prod=S(prodTot),aDR=S(c=>N(c.achat_dr)),ext=S(c=>N(c.achat_ext)),cDR=S(c=>N(c.cession_dr)),vte=S(c=>N(c.srm)+N(c.amendis)),pt=S(c=>N(c.pertes));
+  const entree=prod+bi+aDR+ext, sortie=vte+bo+cDR+pt;
+  return {nb:sub.length,production:prod,entree,ventes:vte,achatAdd:bi+aDR,achatExt:ext,cessionAdd:bo+cDR,pertes:pt,sortie,pertesNT:entree-sortie,rdt:entree?sortie/entree*100:0}; }
+function synthSecteurs(){ const r=[]; SECTEURS.forEach(s=>{const sub=potables().filter(c=>+c.secteur===s); if(sub.length) r.push({per:"SPN"+s,...agg(sub)});}); r.push({per:"DR GLOBALE",...agg(potables())}); return r; }
+function synthCategories(){ const r=[]; [2,1,3].forEach(k=>{const sub=potables().filter(c=>+c.categorie===k); if(sub.length) r.push({per:CATS[k]+" (cat. "+k+")",...agg(sub)});}); r.push({per:"DR GLOBALE",...agg(potables())}); return r; }
+
+// ---- Démarrage / mode ----
+function initSb(){ if(!window.supabase) return false;
+  if(SUPABASE_URL.indexOf("VOTRE-PROJET")>=0) return false;
+  try{ sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); return true; }catch(e){ return false; } }
+(function(){
+  DEMO=!initSb();
+  if(DEMO){ document.getElementById("gateSub").textContent="Mode démonstration local (Supabase non configuré)";
+    document.getElementById("loginBox").style.display="none"; document.getElementById("demoBox").style.display="block"; }
+  else { sb.auth.getSession().then(({data})=>{ if(data.session) demarrerSession(data.session); });
+    sb.auth.onAuthStateChange((_e,session)=>{ if(session) demarrerSession(session); }); }
+})();
+
+// ---- Mode DÉMO (localStorage) ----
+function lsLoad(){ try{ const d=JSON.parse(localStorage.getItem("drpn_demo")||"null");
+  if(d&&d.centres){ centres=d.centres; flux=d.flux; hist=d.hist||[]; return; } }catch(e){}
+  centres=JSON.parse(JSON.stringify(DEMO_CENTRES)); flux=JSON.parse(JSON.stringify(DEMO_FLUX)); hist=[]; }
+function lsSave(){ localStorage.setItem("drpn_demo",JSON.stringify({centres,flux,hist})); }
+function demarrerDemo(r,sec){ role=r; secteur=sec; lsLoad();
+  document.getElementById("demoBadge").style.display="inline-block";
+  finDemarrage(); }
+
+// ---- Mode SUPABASE ----
+async function seConnecter(){ const email=document.getElementById("email").value, pwd=document.getElementById("pwd").value;
+  document.getElementById("loginMsg").textContent="Connexion…";
+  const {error}=await sb.auth.signInWithPassword({email,password:pwd});
+  if(error) document.getElementById("loginMsg").textContent="Échec : "+error.message; }
+async function demarrerSession(session){
+  const {data:prof}=await sb.from("profiles").select("role,secteur").eq("id",session.user.id).single();
+  role=(prof&&prof.role)||"agent"; secteur=prof?prof.secteur:null;
+  await chargerSupabase(); abonnerTempsReel();
+  try{ hist=JSON.parse(localStorage.getItem("drpn_hist")||"[]"); }catch(e){ hist=[]; }
+  finDemarrage(); }
+async function chargerSupabase(){ const c=await sb.from("centres").select("*").order("id"); const f=await sb.from("flux").select("*").order("id"); centres=c.data||[]; flux=f.data||[]; }
+function abonnerTempsReel(){ sb.channel("live")
+  .on("postgres_changes",{event:"*",schema:"public",table:"centres"},()=>rafraichir())
+  .on("postgres_changes",{event:"*",schema:"public",table:"flux"},()=>rafraichir()).subscribe(); }
+let rT=null; function rafraichir(){ clearTimeout(rT); rT=setTimeout(async()=>{ await chargerSupabase(); render(); },400); }
+
+function finDemarrage(){
+  document.getElementById("gate").style.display="none";
+  document.getElementById("app").style.display="block";
+  document.getElementById("whoBadge").textContent = role==="dr"?"Responsable DR":("Agent SPN"+secteur);
+  construireNav(); render();
+}
+function quitter(){ if(DEMO){ location.reload(); } else { sb.auth.signOut().then(()=>location.reload()); } }
+
+// ---- Sauvegarde d'une cellule ----
+let saveT=null; function flashSave(t){ const e=document.getElementById("saveInd"); e.textContent=t; clearTimeout(saveT); saveT=setTimeout(()=>e.textContent="",1500); }
+async function majCentre(id,champ,val){ const c=centres.find(x=>x.id===id); if(!c)return; c[champ]=val;
+  if(DEMO){ lsSave(); flashSave("✓ enregistré"); }
+  else { const {error}=await sb.from("centres").update({[champ]:val,updated_at:new Date().toISOString()}).eq("id",id); flashSave(error?("Erreur: "+error.message):"✓ enregistré"); }
+  render(); }
+async function majFlux(id,champ,val){ const f=flux.find(x=>x.id===id); if(!f)return; f[champ]=val;
+  if(DEMO){ lsSave(); flashSave("✓ enregistré"); }
+  else { const {error}=await sb.from("flux").update({[champ]:val,updated_at:new Date().toISOString()}).eq("id",id); flashSave(error?("Erreur: "+error.message):"✓ enregistré"); }
+  render(); }
+
+// ---- Navigation ----
+function construireNav(){ const items = role==="dr"
+    ? [["res","📊 Résultats consolidés"],["ana","📈 Analyses"],["hist","🕘 Historique"],["base","🗄️ Base de données"],["saisie","✏️ Saisie"]]
+    : [["saisie","✏️ Ma saisie (SPN"+secteur+")"],["res","📊 Mes résultats"],["ana","📈 Analyses"]];
+  tab=items[0][0];
+  document.getElementById("side").innerHTML=items.map(([k,l])=>`<div class="nav" data-t="${k}" onclick="showTab('${k}')">${l}</div>`).join("");
+}
+function showTab(t){ tab=t; render(); }
+function mesCentres(){ return role==="dr"? potables() : potables().filter(c=>+c.secteur===secteur); }
+function mesFlux(){ return role==="dr"? flux : flux.filter(f=>+f.secteur===secteur); }
+const num=(id,f,v)=>`<td><input type="number" step="any" value="${N(v)}" onchange="majCentre(${id},'${f}',+this.value)"></td>`;
+
+// ---- Rendu ----
+function render(){
+  document.querySelectorAll(".side .nav").forEach(e=>e.classList.toggle("active",e.dataset.t===tab));
+  const m=document.getElementById("main");
+  m.innerHTML = tab==="saisie"?vueSaisie() : tab==="base"?vueBase() : tab==="ana"?vueAnalyses() : tab==="hist"?vueHistorique() : vueResultats();
+}
+function vueSaisie(){
+  let h=`<h2>Saisie des données ${role==="dr"?"(tous secteurs)":"— SPN"+secteur}</h2><div class="tbl-wrap"><table>
+    <thead><tr><th>Centre</th><th>SPN</th><th>Prod. superf.</th><th>Prod. souterr.</th><th>Dessalement</th>
+    <th>Achat autre DR</th><th>Achat externe</th><th>Cession autre DR</th><th>Vente SRM</th><th>Vente AMENDIS</th><th>Pertes tech.</th><th>Linéaire km</th></tr></thead><tbody>`;
+  mesCentres().forEach(c=>{ h+=`<tr><td>${esc(c.centre)}</td><td>SPN${c.secteur}</td>
+    ${num(c.id,'prod_sup',c.prod_sup)}${num(c.id,'prod_sout',c.prod_sout)}${num(c.id,'prod_dess',c.prod_dess)}
+    ${num(c.id,'achat_dr',c.achat_dr)}${num(c.id,'achat_ext',c.achat_ext)}${num(c.id,'cession_dr',c.cession_dr)}
+    ${num(c.id,'srm',c.srm)}${num(c.id,'amendis',c.amendis)}${num(c.id,'pertes',c.pertes)}${num(c.id,'lineaire',c.lineaire)}</tr>`; });
+  h+=`</tbody></table></div><h2>Cessions internes (source → destination)</h2><div class="tbl-wrap"><table>
+    <thead><tr><th>Source</th><th>Destination</th><th>Volume (m³)</th></tr></thead><tbody>`;
+  mesFlux().forEach(f=>{ h+=`<tr><td>${esc(f.source)}</td><td>${esc(f.destination)}</td>
+    <td><input type="number" step="any" value="${N(f.volume)}" onchange="majFlux(${f.id},'volume',+this.value)"></td></tr>`; });
+  return h+"</tbody></table></div>";
+}
+function vueBase(){ let h=`<h2>Base de données — référentiel</h2><div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SPN</th><th>Catégorie</th><th>Type</th></tr></thead><tbody>`;
+  centres.forEach(c=>h+=`<tr><td>${esc(c.centre)}</td><td>SPN${c.secteur}</td><td>${c.categorie} · ${CATS[c.categorie]||''}</td><td>${c.type}</td></tr>`);
+  return h+"</tbody></table></div>"; }
+const SYN_HEAD=`<thead><tr><th>Périmètre</th><th>Production</th><th>Achat adduction</th><th>Achat externe adduction</th><th>Cession adduction</th><th>Ventes sur adduction</th><th>Pertes techniques sur adduction</th><th>Rendement adduction</th></tr></thead><tbody>`;
+const synRow=(s,cls)=>`<tr class="${cls||''}"><td>${s.per}</td><td>${fmt(s.production)}</td><td>${fmt(s.achatAdd)}</td><td>${fmt(s.achatExt)}</td><td>${fmt(s.cessionAdd)}</td><td>${fmt(s.ventes)}</td><td>${fmt(s.pertes)}</td><td>${pct(s.rdt)}</td></tr>`;
+function vueResultats(){
+  const scope = role==="dr"? potables() : potables().filter(c=>+c.secteur===secteur);
+  const dr = role==="dr"? synthSecteurs().find(s=>s.per==="DR GLOBALE") : agg(scope);
+  let h=`<div class="kpis">
+    <div class="kpi"><div class="v">${pct(dr.rdt)}</div><div class="l">Rendement ${role==="dr"?"DR globale":"SPN"+secteur}</div></div>
+    <div class="kpi"><div class="v">${fmt(dr.entree)}</div><div class="l">Entrée (m³)</div></div>
+    <div class="kpi"><div class="v">${fmt(dr.ventes)}</div><div class="l">Ventes (m³)</div></div>
+    <div class="kpi"><div class="v">${fmt(dr.pertesNT)}</div><div class="l">Pertes non techniques (m³)</div></div></div>`;
+  h+=`<h2>Détail par centre</h2><div class="tbl-wrap"><table><thead><tr><th>Centre Production</th><th>Production</th><th>Achat adduction</th><th>Achat externe adduction</th><th>Cession adduction</th><th>Ventes sur adduction</th><th>Pertes techniques sur adduction</th><th>Rendement adduction</th></tr></thead><tbody>`;
+  scope.forEach(c=>{ const r=perCentre(c); const b=r.rdt>100.001?' class="bad"':''; h+=`<tr><td>${esc(c.centre)}</td><td>${fmt(r.production)}</td><td>${fmt(r.achatAdd)}</td><td>${fmt(c.achat_ext)}</td><td>${fmt(r.cessionAdd)}</td><td>${fmt(r.ventes)}</td><td>${fmt(c.pertes)}</td><td${b}>${pct(r.rdt)}</td></tr>`; });
+  h+="</tbody></table></div>";
+  if(role==="dr"){ const secs=synthSecteurs().filter(s=>s.per!=="DR GLOBALE"),cats=synthCategories().filter(s=>s.per!=="DR GLOBALE");
+    const sect=t=>`<tr class="section"><td colspan="8">${t}</td></tr>`;
+    h+=`<h2>Rendement global (synthèses)</h2><div class="tbl-wrap"><table>${SYN_HEAD}
+      ${sect("Synthèse 1 — par secteur de production")}${secs.map(s=>synRow(s)).join("")}
+      ${sect("Synthèse 2 — par type d'adduction")}${cats.map(s=>synRow(s)).join("")}${synRow(dr,"bold")}</tbody></table></div>`; }
+  return h;
+}
+function vueAnalyses(){
+  let det=mesCentres().map(c=>({c,r:perCentre(c)}));
+  const pnt=det.filter(o=>o.r.entree>0).sort((a,b)=>b.r.pertesNT-a.r.pertesNT);
+  const totPNT=pnt.reduce((a,o)=>a+Math.max(0,o.r.pertesNT),0);
+  let h=`<h2>Pertes non techniques — eau réellement perdue</h2><div class="warn">Volume total perdu : <b>${fmt(totPNT)} m³</b></div><div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SPN</th><th>Entrée</th><th>Sortie</th><th>Pertes non tech.</th><th>Taux</th></tr></thead><tbody>`;
+  pnt.forEach(o=>{ const taux=o.r.entree?o.r.pertesNT/o.r.entree*100:0; const bad=o.r.pertesNT>0.5; h+=`<tr><td>${esc(o.c.centre)}</td><td>SPN${o.c.secteur}</td><td>${fmt(o.r.entree)}</td><td>${fmt(o.r.sortie)}</td><td class="${bad?'bad':'good'}">${fmt(o.r.pertesNT)}</td><td class="${bad?'bad':'good'}">${pct(taux)}</td></tr>`; });
+  h+="</tbody></table></div>";
+  const pt=det.filter(o=>o.r.entree>0).sort((a,b)=>b.r.tauxPT-a.r.tauxPT);
+  h+=`<h2>Pertes techniques (seuil ≤ ${SEUIL_PT} %)</h2><div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SPN</th><th>Pertes tech.</th><th>Entrée</th><th>Taux</th><th>Seuil</th></tr></thead><tbody>`;
+  pt.forEach(o=>{ const bad=o.r.tauxPT>SEUIL_PT; h+=`<tr><td>${esc(o.c.centre)}</td><td>SPN${o.c.secteur}</td><td>${fmt(o.c.pertes)}</td><td>${fmt(o.r.entree)}</td><td class="${bad?'bad':'good'}">${pct(o.r.tauxPT)}</td><td>${bad?'✗':'✓'}</td></tr>`; });
+  h+="</tbody></table></div>";
+  const il=det.filter(o=>o.r.ilp!==null).sort((a,b)=>b.r.ilp-a.r.ilp);
+  h+=`<h2>Indice Linéaire de Pertes — ILP (m³/km/j)</h2>`;
+  h+= il.length? `<div class="tbl-wrap"><table><thead><tr><th>Centre</th><th>SPN</th><th>Volume perdu</th><th>Linéaire km</th><th>ILP</th></tr></thead><tbody>`+il.map(o=>`<tr><td>${esc(o.c.centre)}</td><td>SPN${o.c.secteur}</td><td>${fmt(o.r.volPerdu)}</td><td>${fmt2(o.c.lineaire)}</td><td>${fmt2(o.r.ilp)}</td></tr>`).join("")+"</tbody></table></div>"
+    : `<div class="warn">Saisir le linéaire (km) des centres pour calculer l'ILP.</div>`;
+  const totV=det.reduce((a,o)=>a+o.r.ventes,0),srm=det.reduce((a,o)=>a+N(o.c.srm),0),am=det.reduce((a,o)=>a+N(o.c.amendis),0);
+  h+=`<h2>Ventes</h2><div class="kpis"><div class="kpi"><div class="v">${fmt(totV)}</div><div class="l">Ventes totales</div></div><div class="kpi"><div class="v">${fmt(srm)}</div><div class="l">SRM (${totV?(srm/totV*100).toFixed(1):0}%)</div></div><div class="kpi"><div class="v">${fmt(am)}</div><div class="l">AMENDIS (${totV?(am/totV*100).toFixed(1):0}%)</div></div></div>`;
+  return h;
+}
+function histSave(){ if(DEMO) lsSave(); else localStorage.setItem("drpn_hist",JSON.stringify(hist)); }
+function archiver(){ const dr=agg(potables()); const vt=potables().reduce((a,c)=>a+N(c.srm)+N(c.amendis),0);
+  const per=prompt("Nom de la période à archiver :","Période "+(hist.length+1)); if(per===null)return;
+  hist.push({periode:per,date:new Date().toLocaleDateString("fr-FR"),ventesTotal:vt,dr:{rdt:dr.rdt,entree:dr.entree,pertes:dr.pertes}}); histSave(); render(); }
+function delHist(i){ if(confirm("Supprimer cette période ?")){ hist.splice(i,1); histSave(); render(); } }
+function vueHistorique(){
+  let h=`<h2>Historique des périodes</h2><p><button onclick="archiver()">📌 Archiver la période courante</button></p>`;
+  if(!hist.length) return h+`<div class="warn">Aucune période archivée.</div>`;
+  h+=`<div class="tbl-wrap"><table><thead><tr><th>Période</th><th>Date</th><th>Rendement DR</th><th>Ventes</th><th>Δ rendement</th><th>Δ ventes</th><th></th></tr></thead><tbody>`;
+  hist.forEach((s,i)=>{ const p=i>0?hist[i-1]:null; const dR=p?(s.dr.rdt-p.dr.rdt):null; const dV=p&&p.ventesTotal?(s.ventesTotal-p.ventesTotal)/p.ventesTotal*100:null;
+    h+=`<tr><td>${esc(s.periode)}</td><td>${s.date}</td><td>${pct(s.dr.rdt)}</td><td>${fmt(s.ventesTotal)}</td>
+      <td class="${dR===null?'':(dR>=0?'up':'down')}">${dR===null?"—":(dR>=0?"▲ +":"▼ ")+dR.toFixed(2)+" pts"}</td>
+      <td class="${dV===null?'':(dV>=0?'up':'down')}">${dV===null?"—":(dV>=0?"▲ +":"▼ ")+dV.toFixed(2)+" %"}</td>
+      <td><button class="sec" onclick="delHist(${i})">✕</button></td></tr>`; });
+  return h+"</tbody></table></div>";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,539 @@
+{
+  "centres": [
+    {
+      "Centre": "TRANSPORT CHARF EL AKAB",
+      "Secteur": 1,
+      "Catégorie": 2,
+      "Production": 0,
+      "Achat adduction": 42606302,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 41426012,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 1800
+    },
+    {
+      "Centre": "PRODUCTION CHARF EL AKAB (CEA)",
+      "Secteur": 1,
+      "Catégorie": 2,
+      "Production": 1680216,
+      "Achat adduction": 44549509,
+      "Achat externe": 0,
+      "Cession adduction": 44588805,
+      "Vente SRM": 1490727,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 1800
+    },
+    {
+      "Centre": "ST HACHEF",
+      "Secteur": 1,
+      "Catégorie": 1,
+      "Production": 37343429,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 37335960,
+      "Vente SRM": 0,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "TRANSPORT EAUX TRAITEES HACHEF",
+      "Secteur": 1,
+      "Catégorie": 1,
+      "Production": 0,
+      "Achat adduction": 3045380,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 2924672,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "ST M'HARHAR",
+      "Secteur": 1,
+      "Catégorie": 1,
+      "Production": 11842871,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 11520269,
+      "Vente SRM": 0,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "TRANSPORT M'HARHAR-KSAR SGHIR",
+      "Secteur": 1,
+      "Catégorie": 1,
+      "Production": 36315,
+      "Achat adduction": 4104115,
+      "Achat externe": 0,
+      "Cession adduction": 121720,
+      "Vente SRM": 2709565,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 175663
+    },
+    {
+      "Centre": "ST TANGER MED & PRODUCTION TAGHRAMT",
+      "Secteur": 1,
+      "Catégorie": 1,
+      "Production": 1395479,
+      "Achat adduction": 121720,
+      "Achat externe": 0,
+      "Cession adduction": 698591,
+      "Vente SRM": 818264,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CENTRE PRODUCTION RAOUZ (ST RAOUZ)",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 3631918,
+      "Achat adduction": 153290,
+      "Achat externe": 0,
+      "Cession adduction": 3769456,
+      "Vente SRM": 0,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CENTRE TRANSPORT RAOUZ",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 0,
+      "Achat adduction": 3796153,
+      "Achat externe": 0,
+      "Cession adduction": 1341019,
+      "Vente SRM": 1576353,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 3769
+    },
+    {
+      "Centre": "CENTRE DE PRODUCTION OUED MARTIL (ST O.MARTIL)",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 7491736,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 7491736,
+      "Vente SRM": 526,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla",
+      "Secteur": 2,
+      "Catégorie": 2,
+      "Production": 190375,
+      "Achat adduction": 7500991,
+      "Achat externe": 0,
+      "Cession adduction": 7322567,
+      "Vente SRM": 186034,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 6697
+    },
+    {
+      "Centre": "ST SMIR",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 4440023,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 4440023,
+      "Vente SRM": 0,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "ST TORRETA",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 3059875,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 3052620,
+      "Vente SRM": 7255,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CENTRE TRANSPORT SMIR TORETA",
+      "Secteur": 2,
+      "Catégorie": 2,
+      "Production": 0,
+      "Achat adduction": 16144959,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 15999943,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 1800
+    },
+    {
+      "Centre": "CENTRE DE PRODUCTION MOULAY BOUCHETA (ST)",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 402328,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 397808,
+      "Vente SRM": 0,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CPT Mly Bouchta-Chefchaouen-Tetaoun",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 1725816,
+      "Achat adduction": 397808,
+      "Achat externe": 0,
+      "Cession adduction": 320543,
+      "Vente SRM": 1791649,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CPT Bab Taza - Derdara",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 161698,
+      "Achat adduction": 320543,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 457432,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CPT Oued Laou - Stehat",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 284199,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 273768,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CTP Bouhmed",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 325507,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 313742,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CPT Jebha-Bab Berred",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 424538,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 419875,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 522
+    },
+    {
+      "Centre": "STATIONS DE TRAITEMENT SPECIFIQUES (ISSAGUEN-BNI AMMART-KETAMA)",
+      "Secteur": 2,
+      "Catégorie": 1,
+      "Production": 129891,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 127562,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "PRODUCTION ST LOUKKOS",
+      "Secteur": 3,
+      "Catégorie": 1,
+      "Production": 7669298,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 7664444,
+      "Vente SRM": 0,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 4854
+    },
+    {
+      "Centre": "PRODUCTION OUEZZANE OUEST",
+      "Secteur": 3,
+      "Catégorie": 1,
+      "Production": 1060243,
+      "Achat adduction": 2420824,
+      "Achat externe": 0,
+      "Cession adduction": 1126031,
+      "Vente SRM": 2144559,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 69778
+    },
+    {
+      "Centre": "PRODUCTION OUEZZANE EST",
+      "Secteur": 3,
+      "Catégorie": 1,
+      "Production": 241367,
+      "Achat adduction": 1943564,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 1924116,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 48408
+    },
+    {
+      "Centre": "TRANSPORT KSAR KEBIR",
+      "Secteur": 3,
+      "Catégorie": 1,
+      "Production": 0,
+      "Achat adduction": 4942267,
+      "Achat externe": 0,
+      "Cession adduction": 3082790,
+      "Vente SRM": 1646380,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 2324
+    },
+    {
+      "Centre": "PRODUCTION KSAR LEKBIR",
+      "Secteur": 3,
+      "Catégorie": 1,
+      "Production": 457796,
+      "Achat adduction": 458835,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 861289,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 11751
+    },
+    {
+      "Centre": "TRANSPORT LARACHE",
+      "Secteur": 3,
+      "Catégorie": 1,
+      "Production": 0,
+      "Achat adduction": 2063443,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 1945815,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 36416
+    },
+    {
+      "Centre": "PRODUCTION LARACHE",
+      "Secteur": 3,
+      "Catégorie": 1,
+      "Production": 2621183,
+      "Achat adduction": 59828,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 2627077,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "ST AL HOCEIMA",
+      "Secteur": 4,
+      "Catégorie": 1,
+      "Production": 1696018,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 1590082,
+      "Vente SRM": 102711,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "CHAMPS CAPTANTS AL HOCEIMA",
+      "Secteur": 4,
+      "Catégorie": 1,
+      "Production": 3414776,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 3163361,
+      "Vente SRM": 219127,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 70
+    },
+    {
+      "Centre": "TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA",
+      "Secteur": 4,
+      "Catégorie": 2,
+      "Production": 0,
+      "Achat adduction": 3498941,
+      "Achat externe": 0,
+      "Cession adduction": 941482,
+      "Vente SRM": 2436333,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 2493
+    },
+    {
+      "Centre": "STATION DESSALEMENT AL HOCEIMA",
+      "Secteur": 4,
+      "Catégorie": 1,
+      "Production": 3465151,
+      "Achat adduction": 0,
+      "Achat externe": 0,
+      "Cession adduction": 3465151,
+      "Vente SRM": 0,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 0
+    },
+    {
+      "Centre": "TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE",
+      "Secteur": 4,
+      "Catégorie": 2,
+      "Production": 5729,
+      "Achat adduction": 5640466,
+      "Achat externe": 0,
+      "Cession adduction": 784710,
+      "Vente SRM": 4501714,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 18480
+    },
+    {
+      "Centre": "ST TARGUIST",
+      "Secteur": 4,
+      "Catégorie": 1,
+      "Production": 453963,
+      "Achat adduction": 388468,
+      "Achat externe": 0,
+      "Cession adduction": 0,
+      "Vente SRM": 815335,
+      "Vente AMENDIS": 0,
+      "Pertes techniques": 273
+    }
+  ],
+  "flux": [
+    {
+      "Source": "ST HACHEF",
+      "Destination": "PRODUCTION CHARF EL AKAB (CEA)",
+      "Volume": 0.0
+    },
+    {
+      "Source": "ST HACHEF",
+      "Destination": "TRANSPORT EAUX TRAITEES HACHEF",
+      "Volume": 0.0
+    },
+    {
+      "Source": "PRODUCTION CHARF EL AKAB (CEA)",
+      "Destination": "TRANSPORT CHARF EL AKAB",
+      "Volume": 0.0
+    },
+    {
+      "Source": "ST M'HARHAR",
+      "Destination": "PRODUCTION CHARF EL AKAB (CEA)",
+      "Volume": 0.0
+    },
+    {
+      "Source": "ST M'HARHAR",
+      "Destination": "TRANSPORT M'HARHAR-KSAR SGHIR",
+      "Volume": 0.0
+    },
+    {
+      "Source": "ST TANGER MED & PRODUCTION TAGHRAMT",
+      "Destination": "TRANSPORT M'HARHAR-KSAR SGHIR",
+      "Volume": 0.0
+    },
+    {
+      "Source": "ST TANGER MED & PRODUCTION TAGHRAMT",
+      "Destination": "CENTRE PRODUCTION RAOUZ (ST RAOUZ)",
+      "Volume": 0.0
+    },
+    {
+      "Source": "CENTRE PRODUCTION RAOUZ (ST RAOUZ)",
+      "Destination": "CENTRE TRANSPORT RAOUZ",
+      "Volume": 0.0
+    },
+    {
+      "Source": "CENTRE DE PRODUCTION OUED MARTIL (ST O.MARTIL)",
+      "Destination": "CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla",
+      "Volume": 0.0
+    },
+    {
+      "Source": "ST SMIR",
+      "Destination": "CENTRE TRANSPORT SMIR TORETA",
+      "Volume": 0.0
+    },
+    {
+      "Source": "ST TORRETA",
+      "Destination": "CENTRE TRANSPORT SMIR TORETA",
+      "Volume": 0.0
+    },
+    {
+      "Source": "CENTRE TRANSPORT RAOUZ",
+      "Destination": "CENTRE TRANSPORT SMIR TORETA",
+      "Volume": 0.0
+    },
+    {
+      "Source": "CENTRE TRANSPORT TAMOUDA-O.MARTIL-Nakhla",
+      "Destination": "CENTRE TRANSPORT SMIR TORETA",
+      "Volume": 0.0
+    },
+    {
+      "Source": "CENTRE DE PRODUCTION MOULAY BOUCHETA (ST)",
+      "Destination": "CPT Mly Bouchta-Chefchaouen-Tetaoun",
+      "Volume": 0.0
+    },
+    {
+      "Source": "CPT Mly Bouchta-Chefchaouen-Tetaoun",
+      "Destination": "CPT Bab Taza - Derdara",
+      "Volume": 0.0
+    },
+    {
+      "Source": "PRODUCTION ST LOUKKOS",
+      "Destination": "PRODUCTION OUEZZANE OUEST",
+      "Volume": 0.0
+    },
+    {
+      "Source": "PRODUCTION ST LOUKKOS",
+      "Destination": "TRANSPORT KSAR KEBIR",
+      "Volume": 0.0
+    },
+    {
+      "Source": "TRANSPORT KSAR KEBIR",
+      "Destination": "PRODUCTION KSAR LEKBIR",
+      "Volume": 0.0
+    },
+    {
+      "Source": "TRANSPORT KSAR KEBIR",
+      "Destination": "TRANSPORT LARACHE",
+      "Volume": 0.0
+    },
+    {
+      "Source": "ST AL HOCEIMA",
+      "Destination": "TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA",
+      "Volume": 0.0
+    },
+    {
+      "Source": "CHAMPS CAPTANTS AL HOCEIMA",
+      "Destination": "TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA",
+      "Volume": 0.0
+    },
+    {
+      "Source": "TRANSPORT BARRAGE MBAK-RESERVOIR AL HOCEIMA",
+      "Destination": "TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE",
+      "Volume": 0.0
+    },
+    {
+      "Source": "STATION DESSALEMENT AL HOCEIMA",
+      "Destination": "TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE",
+      "Volume": 0.0
+    },
+    {
+      "Source": "CHAMPS CAPTANTS AL HOCEIMA",
+      "Destination": "TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE",
+      "Volume": 0.0
+    },
+    {
+      "Source": "TRANSPORT RM AJDIR-TARGUIST-ADDUCTION REGIONALE",
+      "Destination": "ST TARGUIST",
+      "Volume": 0.0
+    }
+  ]
+}
